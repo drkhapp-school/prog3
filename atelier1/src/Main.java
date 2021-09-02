@@ -42,7 +42,7 @@ public class Main {
     }
 
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
-        int lineCount = (int) (length / 16) + 1;
+	    int lineCount = (int) Math.ceil((double) length / 16);
 
         String[] hexArray = new String[lineCount * 16];
         Arrays.fill(hexArray, "  ");
