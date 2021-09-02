@@ -55,7 +55,7 @@ public class Main {
             int value = file.read();
             hexArray[i] = String.format("%02x", value);
 
-            if (value <= 20 || value >= 127) ascArray[i] = '.';
+            if (value <= 31 || value >= 127) ascArray[i] = '.';
             else ascArray[i] = (char) value;
         }
 
