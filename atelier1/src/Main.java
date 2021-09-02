@@ -42,9 +42,7 @@ public class Main {
     }
 
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
-        String address;
         int lineCount = (int) (length / 16) + 1;
-        int[] illegal = {10, 13};
 
         String[] hexArray = new String[lineCount * 16];
         Arrays.fill(hexArray, "  ");
@@ -57,7 +55,7 @@ public class Main {
             int value = file.read();
             hexArray[i] = String.format("%02x", value);
 
-            if (Arrays.stream(illegal).anyMatch(x -> x == value)) ascArray[i] = '.';
+            if (value <= 20 || value >= 127) ascArray[i] = '.';
             else ascArray[i] = (char) value;
         }
 
@@ -72,11 +70,11 @@ public class Main {
 
             System.arraycopy(ascArray, i * 16, ascText, 0, 16);
 
-            address = "0x0000" + i + "0";
-            System.out.printf("\u001B[33m %s \u001B[36m  %s\u001B[37m %s%n", address, hexAddress, new String(ascText));
+            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i, hexAddress, new String(ascText));
         }
 
     }
+
 
 
     public static void printUsage() {
