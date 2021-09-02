@@ -91,8 +91,7 @@ public class Main {
                     }
                     hexArray.add('\n');
                 }
-
-                i += buffer2;
+                i = i + buffer + buffer2;
             }
         }
 
