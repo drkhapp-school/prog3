@@ -102,7 +102,7 @@ public class Main {
 
 
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
-        int lineCount = (int) (length / 16) + 1;
+	    int lineCount = (int) Math.ceil((double) length / 16);
 
         String[] hexArray = new String[lineCount * 16];
         Arrays.fill(hexArray, "  ");
@@ -115,7 +115,7 @@ public class Main {
             int value = file.read();
             hexArray[i] = String.format("%02x", value);
 
-            if (value <= 20 || value >= 127) ascArray[i] = '.';
+            if (value <= 31 || value >= 127) ascArray[i] = '.';
             else ascArray[i] = (char) value;
         }
 
