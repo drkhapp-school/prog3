@@ -1,9 +1,11 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -57,18 +59,46 @@ public class Main {
 
     public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
         // TODO: Affichage des chaînes de caractères.
-        String[] hexArray = new String[(int) length];
-        ArrayList<Character> ascArray = new ArrayList<>();
+        ArrayList<Character> hexArray = new ArrayList<>();
+        ArrayList<Byte> byteArray = new ArrayList<>();
+        ArrayList<Byte> printable = new ArrayList<>();
 
-        for (int i = 0; i < length; i++) {
-            int value = file.read();
-            hexArray[i] = String.format("%02x", value);
-
-            if (value > 20 && value < 127) ascArray.add(i, (char) value);
-            else ascArray.add(i, null);
+        for (int i = 32; i < 127; i++) {
+            printable.add((byte) i);
         }
 
-        ascArray.removeIf(Objects::isNull);
+        printable.add((byte) 10);
+
+        for (int i = 0; i < length; i++) {
+            byte value = file.readByte();
+            if (printable.contains(value)) byteArray.add(i, value);
+            else byteArray.add(i, null);
+        }
+
+        for (int i = 0; i < byteArray.size(); i++) {
+            if (byteArray.get(i) != null) {
+                int buffer = 0;
+                while (buffer < minLength) {
+                    if (byteArray.get(i + buffer) == null) break;
+                    buffer++;
+                }
+
+                int buffer2 = 0;
+                if (buffer == minLength) {
+                    while (byteArray.get(i + buffer2) != null) {
+                        hexArray.add((char) byteArray.get(i + buffer2).byteValue());
+                        buffer2++;
+                    }
+                    hexArray.add('\n');
+                }
+
+                i = i + buffer + buffer2;
+            }
+        }
+
+        System.out.println(hexArray.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining()));
     }
 
 
