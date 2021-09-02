@@ -1,7 +1,9 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
 
@@ -37,9 +39,12 @@ public class Main {
 
             if (argList.contains("-s")) {
                 byte minLength = 4;
+
                 try {
-                    minLength = Byte.parseByte(args[argList.indexOf("-s") +1]);
-                } catch(Exception ignored) { }
+                    minLength = Byte.parseByte(args[argList.indexOf("-s") + 1]);
+                } catch (NumberFormatException e) {
+                    printUsage();
+                } catch (ArrayIndexOutOfBoundsException ignored) {}
 
                 printStrings(file, length, minLength);
             } else {
@@ -52,20 +57,18 @@ public class Main {
 
     public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
         // TODO: Affichage des chaînes de caractères.
-        String[] hexArray = new String[(int)length];
-        char[] ascArray = new char[(int)length];
+        String[] hexArray = new String[(int) length];
+        ArrayList<Character> ascArray = new ArrayList<>();
 
         for (int i = 0; i < length; i++) {
-            byte[] bytes = new byte[minLength];
-            int value = file.read(bytes);
+            int value = file.read();
             hexArray[i] = String.format("%02x", value);
 
-            ascArray[i] = (char) value;
+            if (value > 20 && value < 127) ascArray.add(i, (char) value);
+            else ascArray.add(i, null);
         }
 
-
-
-        System.out.println(Arrays.toString(hexArray));
+        ascArray.removeIf(Objects::isNull);
     }
 
 
@@ -102,7 +105,6 @@ public class Main {
         }
 
     }
-
 
 
     public static void printUsage() {
