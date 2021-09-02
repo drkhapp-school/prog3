@@ -5,7 +5,6 @@ import java.util.List;
 
 public class Main {
 
-
     public static void main(String[] args) {
         // TODO: Gestion du fichier.
 
@@ -81,7 +80,6 @@ public class Main {
 
 
     public static void printUsage() {
-        System.out.println("Erreur de syntaxe");
         System.out.println("Usage: app.java -f filename.txt -o offset -l length");
         System.out.println("  -f    fichier, obligatoire");
         System.out.println("  -o    décalage, doit être >= 0 et < que la longueur du fichier");
