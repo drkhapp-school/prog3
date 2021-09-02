@@ -35,11 +35,39 @@ public class Main {
                 length = file.length() - offset;
             }
 
-            printData(file, offset, length);
+            if (argList.contains("-s")) {
+                byte minLength = 4;
+                try {
+                    minLength = Byte.parseByte(args[argList.indexOf("-s") +1]);
+                } catch(Exception ignored) { }
+
+                printStrings(file, length, minLength);
+            } else {
+                printData(file, offset, length);
+            }
         } catch (NumberFormatException | IOException e) {
             printUsage();
         }
     }
+
+    public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
+        // TODO: Affichage des chaînes de caractères.
+        String[] hexArray = new String[(int)length];
+        char[] ascArray = new char[(int)length];
+
+        for (int i = 0; i < length; i++) {
+            byte[] bytes = new byte[minLength];
+            int value = file.read(bytes);
+            hexArray[i] = String.format("%02x", value);
+
+            ascArray[i] = (char) value;
+        }
+
+
+
+        System.out.println(Arrays.toString(hexArray));
+    }
+
 
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
         String address;
