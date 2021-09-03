@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,11 +37,64 @@ public class Main {
                 length = file.length() - offset;
             }
 
-            printData(file, offset, length);
+            if (argList.contains("-s")) {
+                byte minLength = 4;
+
+                try {
+                    minLength = Byte.parseByte(args[argList.indexOf("-s") + 1]);
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {}
+
+                printStrings(file, length, minLength);
+            } else {
+                printData(file, offset, length);
+            }
         } catch (NumberFormatException | IOException e) {
             printUsage();
         }
     }
+
+    public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
+        // TODO: Affichage des chaînes de caractères.
+        ArrayList<String> hexArray = new ArrayList<>();
+        ArrayList<Byte> printable = new ArrayList<>();
+        byte[] byteArray = new byte[(int) length];
+
+        for (int i = 32; i < 127; i++) {
+            printable.add((byte) i);
+        }
+
+        for (int i = 0; i < length; i++) {
+            byte value = file.readByte();
+            if (printable.contains(value)) byteArray[i] = value;
+            else byteArray[i] = 0;
+        }
+
+        for (int i = 0; i < length; i++) {
+            if (byteArray[i] != 0) {
+                int buffer = 0;
+                while (i + buffer < length && buffer < minLength && byteArray[i + buffer] != 0)
+                    buffer++;
+
+                int stringBuffer = 0;
+                if (buffer == minLength) {
+                    while (i + stringBuffer < length && byteArray[i + stringBuffer] != 0)
+                        stringBuffer++;
+
+                    byte[] newline = new byte[stringBuffer];
+                    System.arraycopy(byteArray, i, newline, 0, stringBuffer);
+
+                    hexArray.add(new String(newline, StandardCharsets.US_ASCII));
+                }
+
+                i += stringBuffer;
+            }
+        }
+
+        for (String line : hexArray) {
+            System.out.println(line);
+        }
+    }
+
 
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
 	    int lineCount = (int) Math.ceil((double) length / 16);
@@ -74,7 +129,6 @@ public class Main {
         }
 
     }
-
 
 
     public static void printUsage() {
