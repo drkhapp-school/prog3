@@ -44,14 +44,14 @@ public class Main {
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
 	    int lineCount = (int) Math.ceil((double) length / 16);
 
-        String[] hexArray = new String[lineCount * 16];
+        String[] hexArray = new String[(int) file.length()];
         Arrays.fill(hexArray, "  ");
 
-        char[] ascArray = new char[lineCount * 16];
+        char[] ascArray = new char[(int) file.length()];
         Arrays.fill(ascArray, ' ');
 
         file.seek(offset);
-        for (int i = (int) offset % 8; i < length; i++) {
+        for (int i = (int) offset % 16; i < length + (offset % 16); i++) {
             int value = file.read();
             hexArray[i] = String.format("%02x", value);
 
@@ -72,7 +72,6 @@ public class Main {
 
             System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i, hexAddress, new String(ascText));
         }
-
     }
 
 
