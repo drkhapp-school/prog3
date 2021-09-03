@@ -18,8 +18,11 @@ public class Main {
         // Gestion d'arguments
         // Fichier
         try {
-            // fichier
+            // vérif des obligations
             if (!argList.contains("-f")) throw new IOException();
+            if (argList.contains("-s") && argList.contains("-i")) throw new IOException();
+
+            // fichier
             String filename = args[argList.indexOf("-f") + 1];
             file = new RandomAccessFile(filename, "r");
 
@@ -42,14 +45,56 @@ public class Main {
 
                 try {
                     minLength = Byte.parseByte(args[argList.indexOf("-s") + 1]);
-                } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {}
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {
+                }
 
                 printStrings(file, length, minLength);
+            } else if (argList.contains("-i")) {
+                printFormat(file);
             } else {
                 printData(file, offset, length);
             }
         } catch (NumberFormatException | IOException e) {
             printUsage();
+        }
+    }
+
+    public static void printFormat(RandomAccessFile file) throws IOException {
+        // TODO: Affichage du format d'exécutable.
+
+        // which oS
+        byte[] windows = new byte[]{0x4d, 0x5a, (byte) 0x90, 0x00};
+        byte[] mac32 = new byte[]{(byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
+        byte[] mac64 = new byte[]{(byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
+        byte[] linux = new byte[]{0x7f, 0x45, 0x4c, 0x46};
+
+        byte[] input = new byte[4];
+
+        for (int i = 0; i < input.length; i++) {
+            input[i] = file.readByte();
+        }
+
+        if (Arrays.equals(input, windows)) {
+            System.out.println("OS: Windows");
+        } else if (Arrays.equals(input, mac32)) {
+            System.out.println("OS: MacOS");
+            System.out.println("Type: x32");
+        } else if (Arrays.equals(input, mac64)) {
+            System.out.println("OS: MacOS");
+            System.out.println("Type: x64");
+        } else if (Arrays.equals(input, linux)) {
+            System.out.println("OS: Linux");
+
+            file.seek(0x12);
+            switch (file.readByte()) {
+                case (byte) 0xb7 -> System.out.println("Type: ARM 64-bits");
+                case (byte) 0x3e -> System.out.println("Type: AMD x86-64");
+                default -> System.out.println("Type: Unknown");
+            }
+
+        } else {
+            System.out.println("OS: Unknown");
+            System.out.println("Type: Unknown");
         }
     }
 
@@ -97,7 +142,7 @@ public class Main {
 
 
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
-	    int lineCount = (int) Math.ceil((double) length / 16);
+        int lineCount = (int) Math.ceil((double) length / 16);
 
         String[] hexArray = new String[(int) file.length()];
         Arrays.fill(hexArray, "  ");
