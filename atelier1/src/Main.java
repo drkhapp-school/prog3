@@ -1,11 +1,9 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.sql.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Main {
 
@@ -44,9 +42,7 @@ public class Main {
 
                 try {
                     minLength = Byte.parseByte(args[argList.indexOf("-s") + 1]);
-                } catch (NumberFormatException e) {
-                    printUsage();
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {}
 
                 printStrings(file, length, minLength);
             } else {
@@ -59,45 +55,44 @@ public class Main {
 
     public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
         // TODO: Affichage des chaînes de caractères.
-        ArrayList<Character> hexArray = new ArrayList<>();
-        ArrayList<Byte> byteArray = new ArrayList<>();
+        ArrayList<String> hexArray = new ArrayList<>();
         ArrayList<Byte> printable = new ArrayList<>();
+        byte[] byteArray = new byte[(int) length];
 
         for (int i = 32; i < 127; i++) {
             printable.add((byte) i);
         }
 
-        printable.add((byte) 10);
-
         for (int i = 0; i < length; i++) {
             byte value = file.readByte();
-            if (printable.contains(value)) byteArray.add(i, value);
-            else byteArray.add(i, null);
+            if (printable.contains(value)) byteArray[i] = value;
+            else byteArray[i] = 0;
         }
 
-        for (int i = 0; i < byteArray.size(); i++) {
-            if (byteArray.get(i) != null) {
+        for (int i = 0; i < length; i++) {
+            if (byteArray[i] != 0) {
                 int buffer = 0;
-                while (buffer < minLength) {
-                    if (byteArray.get(i + buffer) == null) break;
+                while (i + buffer < length && buffer < minLength && byteArray[i + buffer] != 0)
                     buffer++;
+
+                int stringBuffer = 0;
+                if (buffer == minLength) {
+                    while (i + stringBuffer < length && byteArray[i + stringBuffer] != 0)
+                        stringBuffer++;
+
+                    byte[] newline = new byte[stringBuffer];
+                    System.arraycopy(byteArray, i, newline, 0, stringBuffer);
+
+                    hexArray.add(new String(newline, StandardCharsets.US_ASCII));
                 }
 
-                int buffer2 = 0;
-                if (buffer == minLength) {
-                    while (i + buffer2 != byteArray.size() && byteArray.get(i + buffer2) != null) {
-                        hexArray.add((char) byteArray.get(i + buffer2).byteValue());
-                        buffer2++;
-                    }
-                    hexArray.add('\n');
-                }
-                i = i + buffer + buffer2;
+                i += stringBuffer;
             }
         }
 
-        System.out.println(hexArray.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining()));
+        for (String line : hexArray) {
+            System.out.println(line);
+        }
     }
 
 
