@@ -37,23 +37,29 @@ public class Main {
 
             if (argList.contains("-s")) {
                 byte minLength = 4;
-
                 try {
                     minLength = Byte.parseByte(args[argList.indexOf("-s") + 1]);
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {
                 }
 
                 printStrings(file, length, minLength);
-            } else {
+
+            } else
                 printData(file, offset, length);
-            }
+
         } catch (NumberFormatException | IOException e) {
             printUsage();
         }
     }
 
+    /**
+     * Imprime les chaînes de caractère
+     * 
+     * @param file      le fichier à lire
+     * @param length    la longueur des données à lire
+     * @param minLength la longueur de la chaîne
+     */
     public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
-        // TODO: Affichage des chaînes de caractères.
         ArrayList<String> hexArray = new ArrayList<>();
         ArrayList<Byte> printable = new ArrayList<>();
         byte[] byteArray = new byte[(int) length];
@@ -142,7 +148,9 @@ public class Main {
      * Imprime comment utiliser l'application
      */
     public static void printUsage() {
-        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier>");
+        System.out.println("usage: app.java [-s [value]] [-o <value>] [-l <value>] -f <fichier>");
+        System.out.println(
+                "    -s    string, default 0 " + "          cherche une chaine de caractere (doit être plus que 0)");
         System.out.println("    -f    fichier, obligatoire");
         System.out.println("    -o    decalage, doit etre >= 0 et < que la longueur du fichier");
         System.out.println("    -l    taille, doit etre > 0 et < que la longueur du fichier");
