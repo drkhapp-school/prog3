@@ -60,10 +60,14 @@ public class Main {
         }
     }
 
+    /**
+     * Imprimer le système d'exploitation et le processeur cible d'un programme
+     * 
+     * @param file le programme
+     * @throws IOException
+     */
     public static void printFormat(RandomAccessFile file) throws IOException {
-        // TODO: Affichage du format d'exécutable.
-
-        // which oS
+        // Tableau d'octets des systèmes d'exploitation
         byte[] windows = new byte[] { 0x4d, 0x5a, (byte) 0x90, 0x00 };
         byte[] mac32 = new byte[] { (byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe };
         byte[] mac64 = new byte[] { (byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe };
@@ -76,7 +80,7 @@ public class Main {
             System.out.println("OS: Windows");
 
             file.seek(0x3c);
-            byte[] offset = new byte[] { 0, 0, 0, 0 };
+            byte[] offset = new byte[4];
             file.read(offset);
 
             ByteBuffer bb = ByteBuffer.wrap(offset).order(ByteOrder.LITTLE_ENDIAN);
@@ -205,10 +209,11 @@ public class Main {
      * Imprime comment utiliser l'application
      */
     public static void printUsage() {
-        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier>");
+        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier> [-i]");
         System.out.println("    -f    fichier, obligatoire");
         System.out.println("    -o    decalage, doit etre >= 0 et < que la longueur du fichier");
         System.out.println("    -l    taille, doit etre > 0 et < que la longueur du fichier");
+        System.out.println("    -i    donne l'OS et l'architecture cible du fichier ");
         System.exit(1);
     }
 }
