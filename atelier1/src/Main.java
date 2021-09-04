@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,19 +71,36 @@ public class Main {
         byte[] linux = new byte[]{0x7f, 0x45, 0x4c, 0x46};
 
         byte[] input = new byte[4];
-
-        for (int i = 0; i < input.length; i++) {
-            input[i] = file.readByte();
-        }
+        file.read(input);
 
         if (Arrays.equals(input, windows)) {
             System.out.println("OS: Windows");
+
+            file.seek(0x3c);
+            byte[] offset = new byte[]{0, 0, 0, 0};
+            file.read(offset);
+
+            ByteBuffer bb = ByteBuffer.wrap(offset).order(ByteOrder.LITTLE_ENDIAN);
+            file.seek(bb.getInt() + 4);
+
+            byte[] type = new byte[2];
+            file.read(type);
+
+            if (Arrays.equals(type, new byte[]{0x64, (byte) 0x86}))
+                System.out.println("Type: 64 bits");
+            else if (Arrays.equals(type, new byte[]{0x4c, (byte) 0x01}))
+                System.out.println("Type: 32 bits");
+            else
+                System.out.println("Type: Unknown");
+
         } else if (Arrays.equals(input, mac32)) {
             System.out.println("OS: MacOS");
             System.out.println("Type: x32");
+
         } else if (Arrays.equals(input, mac64)) {
             System.out.println("OS: MacOS");
-            System.out.println("Type: x64");
+
+
         } else if (Arrays.equals(input, linux)) {
             System.out.println("OS: Linux");
 
