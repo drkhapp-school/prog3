@@ -10,37 +10,36 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        // TODO: Gestion du fichier.
-
         List<String> argList = Arrays.asList(args);
         RandomAccessFile file;
         long offset = 0;
         long length;
 
-        // Gestion d'arguments
-        // Fichier
         try {
-            // vérif des obligations
-            if (!argList.contains("-f")) throw new IOException();
-            if (argList.contains("-s") && argList.contains("-i")) throw new IOException();
+            // Vérification des obligations
+            if (!argList.contains("-f"))
+                throw new IOException();
+            if (argList.contains("-s") && argList.contains("-i"))
+                throw new IOException();
 
             // fichier
             String filename = args[argList.indexOf("-f") + 1];
             file = new RandomAccessFile(filename, "r");
 
-            // offset
+            // Décalage
             if (argList.contains("-o")) {
                 offset = Integer.parseInt(args[argList.indexOf("-o") + 1]);
-                if (offset < 0 || offset > file.length()) printUsage();
+                if (offset < 0 || offset > file.length())
+                    printUsage();
             }
 
-            // length
+            // Longueur
             if (argList.contains("-l")) {
                 length = Integer.parseInt(args[argList.indexOf("-l") + 1]);
-                if (length <= 0 || length > file.length() - offset) printUsage();
-            } else {
+                if (length <= 0 || length > file.length() - offset)
+                    printUsage();
+            } else
                 length = file.length() - offset;
-            }
 
             if (argList.contains("-s")) {
                 byte minLength = 4;
@@ -65,10 +64,10 @@ public class Main {
         // TODO: Affichage du format d'exécutable.
 
         // which oS
-        byte[] windows = new byte[]{0x4d, 0x5a, (byte) 0x90, 0x00};
-        byte[] mac32 = new byte[]{(byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
-        byte[] mac64 = new byte[]{(byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
-        byte[] linux = new byte[]{0x7f, 0x45, 0x4c, 0x46};
+        byte[] windows = new byte[] { 0x4d, 0x5a, (byte) 0x90, 0x00 };
+        byte[] mac32 = new byte[] { (byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe };
+        byte[] mac64 = new byte[] { (byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe };
+        byte[] linux = new byte[] { 0x7f, 0x45, 0x4c, 0x46 };
 
         byte[] input = new byte[4];
         file.read(input);
@@ -77,7 +76,7 @@ public class Main {
             System.out.println("OS: Windows");
 
             file.seek(0x3c);
-            byte[] offset = new byte[]{0, 0, 0, 0};
+            byte[] offset = new byte[] { 0, 0, 0, 0 };
             file.read(offset);
 
             ByteBuffer bb = ByteBuffer.wrap(offset).order(ByteOrder.LITTLE_ENDIAN);
@@ -86,9 +85,9 @@ public class Main {
             byte[] type = new byte[2];
             file.read(type);
 
-            if (Arrays.equals(type, new byte[]{0x64, (byte) 0x86}))
+            if (Arrays.equals(type, new byte[] { 0x64, (byte) 0x86 }))
                 System.out.println("Type: 64 bits");
-            else if (Arrays.equals(type, new byte[]{0x4c, (byte) 0x01}))
+            else if (Arrays.equals(type, new byte[] { 0x4c, (byte) 0x01 }))
                 System.out.println("Type: 32 bits");
             else
                 System.out.println("Type: Unknown");
@@ -100,15 +99,14 @@ public class Main {
         } else if (Arrays.equals(input, mac64)) {
             System.out.println("OS: MacOS");
 
-
         } else if (Arrays.equals(input, linux)) {
             System.out.println("OS: Linux");
 
             file.seek(0x12);
             switch (file.readByte()) {
-                case (byte) 0xb7 -> System.out.println("Type: ARM 64-bits");
-                case (byte) 0x3e -> System.out.println("Type: AMD x86-64");
-                default -> System.out.println("Type: Unknown");
+            case (byte) 0xb7 -> System.out.println("Type: ARM 64-bits");
+            case (byte) 0x3e -> System.out.println("Type: AMD x86-64");
+            default -> System.out.println("Type: Unknown");
             }
 
         } else {
@@ -129,8 +127,10 @@ public class Main {
 
         for (int i = 0; i < length; i++) {
             byte value = file.readByte();
-            if (printable.contains(value)) byteArray[i] = value;
-            else byteArray[i] = 0;
+            if (printable.contains(value))
+                byteArray[i] = value;
+            else
+                byteArray[i] = 0;
         }
 
         for (int i = 0; i < length; i++) {
@@ -159,9 +159,15 @@ public class Main {
         }
     }
 
-
+    /**
+     * Imprime les données d'un fichier en valeur hexadécimal
+     *
+     * @param file   le fichier à lire
+     * @param offset le nombre d'octets que l'on saute
+     * @param length la longueur des données à lire
+     */
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
-        int lineCount = (int) Math.ceil((double) length / 16);
+        int lineCount = (int) Math.ceil((double) (length + offset % 16) / 16);
 
         String[] hexArray = new String[(int) file.length()];
         Arrays.fill(hexArray, "  ");
@@ -174,32 +180,35 @@ public class Main {
             int value = file.read();
             hexArray[i] = String.format("%02x", value);
 
-            if (value <= 31 || value >= 127) ascArray[i] = '.';
-            else ascArray[i] = (char) value;
+            if (value <= 31 || value >= 127)
+                ascArray[i] = '.';
+            else
+                ascArray[i] = (char) value;
         }
 
         System.out.println("\u001B[33m             0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f  ASCII");
+
         for (int i = 0; i < lineCount; i++) {
-            StringBuilder hexAddress = new StringBuilder();
+            StringBuilder hexValue = new StringBuilder();
+            for (int j = 0; j < 16; j++)
+                hexValue.append(hexArray[i * 16 + j]).append(" ");
+
             char[] ascText = new char[16];
-
-            for (int j = 0; j < 16; j++) {
-                hexAddress.append(hexArray[i * 16 + j]).append(" ");
-            }
-
             System.arraycopy(ascArray, i * 16, ascText, 0, 16);
 
-            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i, hexAddress, new String(ascText));
+            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i + (offset / 16), hexValue,
+                    new String(ascText));
         }
     }
 
-
+    /**
+     * Imprime comment utiliser l'application
+     */
     public static void printUsage() {
-        System.out.println("Usage: app.java -f filename.txt -o offset -l length");
-        System.out.println("  -f    fichier, obligatoire");
-        System.out.println("  -o    décalage, doit être >= 0 et < que la longueur du fichier");
-        System.out.println("  -l    taille, doit être > 0 et < que la longueur du fichier");
+        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier>");
+        System.out.println("    -f    fichier, obligatoire");
+        System.out.println("    -o    decalage, doit etre >= 0 et < que la longueur du fichier");
+        System.out.println("    -l    taille, doit etre > 0 et < que la longueur du fichier");
         System.exit(1);
     }
-
 }
