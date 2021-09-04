@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,9 +35,70 @@ public class Main {
             } else
                 length = file.length() - offset;
 
-            printData(file, offset, length);
+            if (argList.contains("-s")) {
+                byte minLength = 4;
+                try {
+                    minLength = Byte.parseByte(args[argList.indexOf("-s") + 1]);
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {
+                }
+
+                printStrings(file, length, minLength);
+
+            } else
+                printData(file, offset, length);
+
         } catch (NumberFormatException | IOException e) {
             printUsage();
+        }
+    }
+
+    /**
+     * Imprime les chaînes de caractère
+     * 
+     * @param file      le fichier à lire
+     * @param length    la longueur des données à lire
+     * @param minLength la longueur de la chaîne
+     */
+    public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
+        ArrayList<String> hexArray = new ArrayList<>();
+        ArrayList<Byte> printable = new ArrayList<>();
+        byte[] byteArray = new byte[(int) length];
+
+        for (int i = 32; i < 127; i++) {
+            printable.add((byte) i);
+        }
+
+        for (int i = 0; i < length; i++) {
+            byte value = file.readByte();
+            if (printable.contains(value))
+                byteArray[i] = value;
+            else
+                byteArray[i] = 0;
+        }
+
+        for (int i = 0; i < length; i++) {
+            if (byteArray[i] != 0) {
+                int buffer = 0;
+                while (i + buffer < length && buffer < minLength && byteArray[i + buffer] != 0)
+                    buffer++;
+
+                int stringBuffer = 0;
+                if (buffer == minLength) {
+                    while (i + stringBuffer < length && byteArray[i + stringBuffer] != 0)
+                        stringBuffer++;
+
+                    byte[] newline = new byte[stringBuffer];
+                    System.arraycopy(byteArray, i, newline, 0, stringBuffer);
+
+                    hexArray.add(new String(newline, StandardCharsets.US_ASCII));
+                }
+
+                i += stringBuffer;
+            }
+        }
+
+        for (String line : hexArray) {
+            System.out.println(line);
         }
     }
 
@@ -85,7 +148,9 @@ public class Main {
      * Imprime comment utiliser l'application
      */
     public static void printUsage() {
-        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier>");
+        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier> [-s [value]]");
+        System.out.println(
+                "    -s    string, default 0 " + "          cherche une chaine de caractere (doit être plus que 0)");
         System.out.println("    -f    fichier, obligatoire");
         System.out.println("    -o    decalage, doit etre >= 0 et < que la longueur du fichier");
         System.out.println("    -l    taille, doit etre > 0 et < que la longueur du fichier");
