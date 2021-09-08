@@ -177,10 +177,10 @@ public class Main {
     public static void printData(RandomAccessFile file, long offset, long length) throws IOException {
         int lineCount = (int) Math.ceil((double) (length + offset % 16) / 16);
 
-        String[] hexArray = new String[(int) file.length()];
+        String[] hexArray = new String[lineCount * 16];
         Arrays.fill(hexArray, "  ");
 
-        char[] ascArray = new char[(int) file.length()];
+        char[] ascArray = new char[lineCount * 16];
         Arrays.fill(ascArray, ' ');
 
         file.seek(offset);
