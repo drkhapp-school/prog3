@@ -214,10 +214,10 @@ public class Main {
      */
     public static void printUsage() {
         System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier> [-s [value] | -i]");
-        System.out.println("    -s    string, default: 0\n          cherche une chaine de caractere (doit etre plus que 0)");
-        System.out.println("    -f    fichier, obligatoire");
         System.out.println("    -o    decalage, default: 0\n          doit etre >= 0 et < que la longueur du fichier");
         System.out.println("    -l    taille, default: taille du fichier\n          doit etre > 0 et < que la longueur du fichier");
+        System.out.println("    -f    fichier, obligatoire");
+        System.out.println("    -s    string, default: 0\n          cherche une chaine de caractere (doit etre plus que 0)");
         System.out.println("    -i    donne l'OS et l'architecture cible du fichier ");
         System.exit(1);
     }
