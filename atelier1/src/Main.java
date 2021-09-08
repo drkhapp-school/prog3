@@ -18,9 +18,9 @@ public class Main {
         try {
             // Vérification des obligations
             if (!argList.contains("-f"))
-                throw new IOException();
+                throw new IllegalArgumentException();
             if (argList.contains("-s") && argList.contains("-i"))
-                throw new IOException();
+                throw new IllegalArgumentException();
 
             // Fichier
             String filename = args[argList.indexOf("-f") + 1];
@@ -55,23 +55,22 @@ public class Main {
                 printData(file, offset, length);
             }
 
-        } catch (NumberFormatException | IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             printUsage();
         }
     }
 
     /**
      * Imprimer le système d'exploitation et le processeur cible d'un programme
-     * 
+     *
      * @param file le programme
-     * @throws IOException
      */
     public static void printFormat(RandomAccessFile file) throws IOException {
         // Tableau d'octets des systèmes d'exploitation
-        byte[] windows = new byte[] { 0x4d, 0x5a, (byte) 0x90, 0x00 };
-        byte[] mac32 = new byte[] { (byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe };
-        byte[] mac64 = new byte[] { (byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe };
-        byte[] linux = new byte[] { 0x7f, 0x45, 0x4c, 0x46 };
+        byte[] windows = new byte[]{0x4d, 0x5a, (byte) 0x90, 0x00};
+        byte[] mac32 = new byte[]{(byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
+        byte[] mac64 = new byte[]{(byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
+        byte[] linux = new byte[]{0x7f, 0x45, 0x4c, 0x46};
 
         byte[] input = new byte[4];
         file.read(input);
@@ -89,28 +88,29 @@ public class Main {
             byte[] type = new byte[2];
             file.read(type);
 
-            if (Arrays.equals(type, new byte[] { 0x64, (byte) 0x86 }))
+            if (Arrays.equals(type, new byte[]{0x64, (byte) 0x86}))
                 System.out.println("Type: 64 bits");
-            else if (Arrays.equals(type, new byte[] { 0x4c, (byte) 0x01 }))
+            else if (Arrays.equals(type, new byte[]{0x4c, (byte) 0x01}))
                 System.out.println("Type: 32 bits");
             else
                 System.out.println("Type: Unknown");
 
         } else if (Arrays.equals(input, mac32)) {
             System.out.println("OS: MacOS");
-            System.out.println("Type: x32");
+            System.out.println("Type: 32 bits");
 
         } else if (Arrays.equals(input, mac64)) {
             System.out.println("OS: MacOS");
+            System.out.println("Type: 64 bits");
 
         } else if (Arrays.equals(input, linux)) {
             System.out.println("OS: Linux");
 
             file.seek(0x12);
             switch (file.readByte()) {
-            case (byte) 0xb7 -> System.out.println("Type: ARM 64-bits");
-            case (byte) 0x3e -> System.out.println("Type: AMD x86-64");
-            default -> System.out.println("Type: Unknown");
+                case (byte) 0xb7 -> System.out.println("Type: ARM 64-bits");
+                case (byte) 0x3e -> System.out.println("Type: AMD x86-64");
+                default -> System.out.println("Type: Unknown");
             }
 
         } else {
@@ -121,7 +121,7 @@ public class Main {
 
     /**
      * Imprime les chaînes de caractère
-     * 
+     *
      * @param file      le fichier à lire
      * @param length    la longueur des données à lire
      * @param minLength la longueur de la chaîne
@@ -135,32 +135,30 @@ public class Main {
             printable.add((byte) i);
         }
 
-        for (int i = 0; i < length; i++) {
-            byte value = file.readByte();
-            if (printable.contains(value))
-                byteArray[i] = value;
-            else
-                byteArray[i] = 0;
-        }
+        printable.add((byte) '\n');
+        printable.add((byte) '\r');
+
+        file.read(byteArray);
 
         for (int i = 0; i < length; i++) {
-            if (byteArray[i] != 0) {
+            if (printable.contains(byteArray[i])) {
                 int buffer = 0;
-                while (i + buffer < length && buffer < minLength && byteArray[i + buffer] != 0)
+                while (i + buffer < length && printable.contains(byteArray[i + buffer]))
                     buffer++;
 
-                int stringBuffer = 0;
-                if (buffer == minLength) {
-                    while (i + stringBuffer < length && byteArray[i + stringBuffer] != 0)
-                        stringBuffer++;
+                if (buffer >= minLength && byteArray[i + buffer] == 0) {
+                    byte[] newline = new byte[buffer];
+                    System.arraycopy(byteArray, i, newline, 0, buffer);
 
-                    byte[] newline = new byte[stringBuffer];
-                    System.arraycopy(byteArray, i, newline, 0, stringBuffer);
+                    String line = new String(newline, StandardCharsets.US_ASCII);
 
-                    hexArray.add(new String(newline, StandardCharsets.US_ASCII));
+                    line = line.replace("\n", "\\n");
+                    line = line.replace("\r", "\\r");
+
+                    hexArray.add(line);
                 }
 
-                i += stringBuffer;
+                i += buffer;
             }
         }
 
@@ -206,8 +204,7 @@ public class Main {
             char[] ascText = new char[16];
             System.arraycopy(ascArray, i * 16, ascText, 0, 16);
 
-            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i + (offset / 16), hexValue,
-                    new String(ascText));
+            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i + (offset / 16), hexValue, new String(ascText));
         }
     }
 
@@ -216,11 +213,10 @@ public class Main {
      */
     public static void printUsage() {
         System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier> [-s [value] | -i]");
-        System.out.println(
-                "    -s    string, default 0 " + "          cherche une chaine de caractere (doit être plus que 0)");
+        System.out.println("    -s    string, default: 0\n          cherche une chaine de caractere (doit etre plus que 0)");
         System.out.println("    -f    fichier, obligatoire");
-        System.out.println("    -o    decalage, doit etre >= 0 et < que la longueur du fichier");
-        System.out.println("    -l    taille, doit etre > 0 et < que la longueur du fichier");
+        System.out.println("    -o    decalage, default: 0\n          doit etre >= 0 et < que la longueur du fichier");
+        System.out.println("    -l    taille, default: taille du fichier\n          doit etre > 0 et < que la longueur du fichier");
         System.out.println("    -i    donne l'OS et l'architecture cible du fichier ");
         System.exit(1);
     }
