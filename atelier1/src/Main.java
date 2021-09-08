@@ -66,8 +66,9 @@ public class Main {
      * @param file le programme
      */
     public static void printFormat(RandomAccessFile file) throws IOException {
-        // Tableau d'octets des systèmes d'exploitation
-        byte[] windows = new byte[]{0x4d, 0x5a, (byte) 0x90, 0x00};
+        byte[] windows = new byte[]{0x4d, 0x5a};
+        byte[] win32 = new byte[]{0x64, (byte) 0x86};
+        byte[] win64 = new byte[]{0x4c, (byte) 0x01};
         byte[] mac32 = new byte[]{(byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
         byte[] mac64 = new byte[]{(byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
         byte[] linux = new byte[]{0x7f, 0x45, 0x4c, 0x46};
@@ -75,7 +76,7 @@ public class Main {
         byte[] input = new byte[4];
         file.read(input);
 
-        if (Arrays.equals(input, windows)) {
+        if (Arrays.equals(new byte[]{input[1], input[2]}, windows)) {
             System.out.println("OS: Windows");
 
             file.seek(0x3c);
@@ -88,9 +89,9 @@ public class Main {
             byte[] type = new byte[2];
             file.read(type);
 
-            if (Arrays.equals(type, new byte[]{0x64, (byte) 0x86}))
+            if (Arrays.equals(type, win32))
                 System.out.println("Type: 64 bits");
-            else if (Arrays.equals(type, new byte[]{0x4c, (byte) 0x01}))
+            else if (Arrays.equals(type, win64))
                 System.out.println("Type: 32 bits");
             else
                 System.out.println("Type: Unknown");
