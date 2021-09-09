@@ -205,7 +205,8 @@ public class Main {
             char[] ascText = new char[16];
             System.arraycopy(ascArray, i * 16, ascText, 0, 16);
 
-            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i + (offset / 16), hexValue, new String(ascText));
+            System.out.printf("\u001B[33m 0x%05x0 \u001B[36m  %s\u001B[37m %s%n", i + (offset / 16), hexValue,
+                    new String(ascText));
         }
     }
 
@@ -213,12 +214,16 @@ public class Main {
      * Imprime comment utiliser l'application
      */
     public static void printUsage() {
-        System.out.println("usage: app.java [-o <value>] [-l <value>] -f <fichier> [-s [value] | -i]");
-        System.out.println("    -o    decalage, default: 0\n          doit etre >= 0 et < que la longueur du fichier");
-        System.out.println("    -l    taille, default: taille du fichier\n          doit etre > 0 et < que la longueur du fichier");
-        System.out.println("    -f    fichier, obligatoire");
-        System.out.println("    -s    string, default: 0\n          cherche une chaine de caractere (doit etre plus que 0)");
-        System.out.println("    -i    donne l'OS et l'architecture cible du fichier ");
+        System.out.println("""
+                usage: app.java [-o <value>] [-l <value>] -f <fichier> [-s [value] | -i]
+                    -o  decalage, default: 0
+                        doit etre >= 0 et < que la longueur du fichier
+                    -l  taille, default: taille du fichier
+                        doit etre > 0 et < que la longueur du fichier
+                    -f  fichier, obligatoire
+                    -s  string, default: 0
+                        cherche une chaine de caractere (doit etre plus que 0)
+                    -i  donne l'OS et l'architecture cible du fichier""");
         System.exit(1);
     }
 }
