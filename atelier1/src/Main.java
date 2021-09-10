@@ -48,7 +48,7 @@ public class Main {
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {
                 }
 
-                printStrings(file, length, minLength);
+                printStrings(file, offset, length, minLength);
             } else if (argList.contains("-i")) {
                 printFormat(file);
             } else {
@@ -127,7 +127,7 @@ public class Main {
      * @param length    la longueur des données à lire
      * @param minLength la longueur de la chaîne
      */
-    public static void printStrings(RandomAccessFile file, long length, byte minLength) throws IOException {
+    public static void printStrings(RandomAccessFile file, long offset, long length, byte minLength) throws IOException {
         ArrayList<String> hexArray = new ArrayList<>();
         ArrayList<Byte> printable = new ArrayList<>();
         byte[] byteArray = new byte[(int) length];
@@ -139,6 +139,7 @@ public class Main {
         printable.add((byte) '\n');
         printable.add((byte) '\r');
 
+        file.seek(offset);
         file.read(byteArray);
 
         for (int i = 0; i < length; i++) {
