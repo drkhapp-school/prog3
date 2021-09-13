@@ -17,8 +17,10 @@ public class Main {
 
         try {
             // Vérification des obligations
+            // Aucun fichier
             if (!argList.contains("-f"))
                 throw new IllegalArgumentException();
+            // Option -s et & -i en même temps
             if (argList.contains("-s") && argList.contains("-i"))
                 throw new IllegalArgumentException();
 
@@ -28,19 +30,32 @@ public class Main {
 
             // Décalage
             if (argList.contains("-o")) {
-                offset = Integer.parseInt(args[argList.indexOf("-o") + 1]);
+                String arg = args[argList.indexOf("-o") + 1];
+
+                if (arg.startsWith("0x"))
+                    offset = Long.parseLong(arg.replace("0x", ""), 16);
+                else
+                    offset = Long.parseLong(arg);
+
                 if (offset < 0 || offset > file.length())
                     printUsage();
             }
 
             // Longueur
             if (argList.contains("-l")) {
-                length = Integer.parseInt(args[argList.indexOf("-l") + 1]);
+                String arg = args[argList.indexOf("-l") + 1];
+
+                if (arg.startsWith("0x"))
+                    length = Long.parseLong(arg.replace("0x", ""), 16);
+                else
+                    length = Long.parseLong(arg);
+
                 if (length <= 0 || length > file.length() - offset)
                     printUsage();
             } else
                 length = file.length() - offset;
 
+            // printString
             if (argList.contains("-s")) {
                 byte minLength = 4;
                 try {
@@ -55,69 +70,82 @@ public class Main {
                 printData(file, offset, length);
             }
 
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
             printUsage();
         }
     }
 
     /**
-     * Imprimer le système d'exploitation et le processeur cible d'un programme
+     * Imprimer le système d'exploitation et le processeur cible d'un executable
      *
      * @param file le programme
      */
     public static void printFormat(RandomAccessFile file) throws IOException {
         byte[] windows = new byte[]{0x4d, 0x5a};
-        byte[] win32 = new byte[]{0x64, (byte) 0x86};
-        byte[] win64 = new byte[]{0x4c, (byte) 0x01};
         byte[] mac32 = new byte[]{(byte) 0xce, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
         byte[] mac64 = new byte[]{(byte) 0xcf, (byte) 0xfa, (byte) 0xed, (byte) 0xfe};
+        byte[] macuni = new byte[]{(byte) 0xbe, (byte) 0xba, (byte) 0xfe, (byte) 0xca};
         byte[] linux = new byte[]{0x7f, 0x45, 0x4c, 0x46};
-
         byte[] input = new byte[4];
+        String os = "Unknown";
+        String architecture = "Unknown";
+
         file.read(input);
 
-        if (Arrays.equals(new byte[]{input[1], input[2]}, windows)) {
-            System.out.println("OS: Windows");
+        /// OS du fichier
+        if (Arrays.equals(new byte[]{input[1], input[2]}, windows))
+            os = "Windows";
+        else if (Arrays.equals(input, mac32))
+            os = "macOS 32-bit";
+        else if (Arrays.equals(input, mac64))
+            os = "macOS 64-bit";
+        else if (Arrays.equals(input, macuni))
+            os = "macOS Universal";
+        else if (Arrays.equals(input, linux))
+            os = "Linux";
 
-            file.seek(0x3c);
-            byte[] offset = new byte[4];
-            file.read(offset);
+        // Architecture du fichier selon l'OS
+        // devnote: honnêtement je me suis compliqué trop la vie, mais ça marche™️
+        switch (os) {
+            case "Windows" -> {
+                byte[] offset = new byte[4];
+                byte[] type = new byte[2];
+                byte[] x64 = new byte[]{0x64, (byte) 0x86};
+                file.seek(0x3c);
+                file.read(offset);
 
-            ByteBuffer bb = ByteBuffer.wrap(offset).order(ByteOrder.LITTLE_ENDIAN);
-            file.seek(bb.getInt() + 4);
+                ByteBuffer bb = ByteBuffer.wrap(offset).order(ByteOrder.LITTLE_ENDIAN);
+                file.seek(bb.getInt() + 4);
+                file.read(type);
 
-            byte[] type = new byte[2];
-            file.read(type);
-
-            if (Arrays.equals(type, win32))
-                System.out.println("Type: 64 bits");
-            else if (Arrays.equals(type, win64))
-                System.out.println("Type: 32 bits");
-            else
-                System.out.println("Type: Unknown");
-
-        } else if (Arrays.equals(input, mac32)) {
-            System.out.println("OS: MacOS");
-            System.out.println("Type: 32 bits");
-
-        } else if (Arrays.equals(input, mac64)) {
-            System.out.println("OS: MacOS");
-            System.out.println("Type: 64 bits");
-
-        } else if (Arrays.equals(input, linux)) {
-            System.out.println("OS: Linux");
-
-            file.seek(0x12);
-            switch (file.readByte()) {
-                case (byte) 0xb7 -> System.out.println("Type: ARM 64-bits");
-                case (byte) 0x3e -> System.out.println("Type: AMD x86-64");
-                default -> System.out.println("Type: Unknown");
+                if (Arrays.equals(type, x64))
+                    architecture = "x64";
             }
 
-        } else {
-            System.out.println("OS: Unknown");
-            System.out.println("Type: Unknown");
+            case "macOS 32-bit", "macOS 64-bit", "macOS Universal" -> {
+                byte[] type = new byte[4];
+                byte[] x86_64 = new byte[]{0x07, 0x00, 0x00, 0x01};
+                byte[] arm = new byte[]{0x0c, 0x00, 0x00, 0x00};
+                file.seek(0x04);
+                file.read(type);
+
+                if (Arrays.equals(type, x86_64))
+                    architecture = "x86_64";
+                else if (Arrays.equals(type, arm))
+                    architecture = "ARM";
+            }
+
+            case "Linux" -> {
+                file.seek(0x12);
+                switch (file.readByte()) {
+                    case (byte) 0xb7 -> architecture = "ARM aarch64";
+                    case (byte) 0x3e -> architecture = "x86-64";
+                }
+            }
         }
+
+        System.out.println("OS: " + os);
+        System.out.println("Machine: " + architecture);
     }
 
     /**
@@ -128,7 +156,7 @@ public class Main {
      * @param minLength la longueur de la chaîne
      */
     public static void printStrings(RandomAccessFile file, long offset, long length, byte minLength) throws IOException {
-        ArrayList<String> hexArray = new ArrayList<>();
+        ArrayList<String> stringArray = new ArrayList<>();
         ArrayList<Byte> printable = new ArrayList<>();
         byte[] byteArray = new byte[(int) length];
 
@@ -148,7 +176,7 @@ public class Main {
                 while (i + buffer < length && printable.contains(byteArray[i + buffer]))
                     buffer++;
 
-                if (buffer >= minLength && byteArray[i + buffer] == 0) {
+                if (buffer >= minLength && (buffer >= length || byteArray[i + buffer] == 0)) {
                     byte[] newline = new byte[buffer];
                     System.arraycopy(byteArray, i, newline, 0, buffer);
 
@@ -157,16 +185,14 @@ public class Main {
                     line = line.replace("\n", "\\n");
                     line = line.replace("\r", "\\r");
 
-                    hexArray.add(line);
+                    stringArray.add(line);
                 }
 
                 i += buffer;
             }
         }
 
-        for (String line : hexArray) {
-            System.out.println(line);
-        }
+        for (String line : stringArray) System.out.println(line);
     }
 
     /**
