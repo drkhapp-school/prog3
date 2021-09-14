@@ -93,7 +93,7 @@ public class Main {
         file.read(input);
 
         /// OS du fichier
-        if (Arrays.equals(new byte[]{input[1], input[2]}, windows))
+        if (Arrays.equals(new byte[]{input[0], input[1]}, windows))
             os = "Windows";
         else if (Arrays.equals(input, mac32))
             os = "macOS 32-bit";
