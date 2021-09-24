@@ -1,44 +1,19 @@
 #include <stdio.h>
-#include "pile.h"
+#include <stdlib.h>
+#include "ArrayStack.h"
 
 int main() {
-  push(4);
-  push(5);
-  push(6);
-  push(7);
-  pop();
-  pop();
-  push(65);
-  printPile();
-  printSize();
-  printTop();
-  printf("\n");
+    struct ArrayStack stackA;
 
-  pop();
-  push(4);
-  push(4);
-  push(7);
-  pop();
-  push(6);
-  pop();
-  printPile();
-  printSize();
-  printTop();
-  printf("\n");
+    init(&stackA);
+    push(&stackA, 42);
 
-  pop();
-  pop();
-  pop();
-  pop();
-  pop();
-  pop();
-  pop();
-  pop();
-  pop();
-  pop();
-  printPile();
-  printSize();
-  printTop();
-  printf("\n");
-  return 0;
+    printf("Pile A -> Dessus: %i, compte: %i\n", top(&stackA), size(&stackA));
+    struct ArrayStack stackB;
+
+    init(&stackB);
+    push(&stackB, 200);
+
+    printf("Pile B -> Dessus: %i, compte: %i\n", top(&stackB), size(&stackB));
+    return 0;
 }
