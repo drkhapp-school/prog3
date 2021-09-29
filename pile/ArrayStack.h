@@ -4,7 +4,7 @@
 struct ArrayStack {
   int *array;
   int size;
-  int topIndex;
+  int topIndex; 
 };
 
 // Allocation de la pile
