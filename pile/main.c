@@ -11,17 +11,19 @@
 
 int main() {
   struct ArrayStack stackA;
-
-  init(&stackA);
+  create(&stackA, 4);
   push(&stackA, 42);
   push(&stackA, 404);
-
+  push(&stackA, 500);
+  push(&stackA, 324);
+  push(&stackA, 43242);
   printf("Pile A -> Dessus: %i, compte: %i\n", top(&stackA), size(&stackA));
+  destroy(&stackA);
+
   struct ArrayStack stackB;
-
-  init(&stackB);
+  create(&stackB, 400);
   push(&stackB, 200);
-
   printf("Pile B -> Dessus: %i, compte: %i\n", top(&stackB), size(&stackB));
+  destroy(&stackB);
   return 0;
 }

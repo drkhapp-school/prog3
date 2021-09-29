@@ -1,18 +1,27 @@
 #include <stdio.h>
-
-#define MAX 10
+#include <stdlib.h>
 
 struct ArrayStack {
-  int array[MAX];
+  int *array;
+  int size;
   int topIndex;
 };
 
-// Initializer la pile
-void init(struct ArrayStack *stack) { stack->topIndex = 0; }
+// Allocation de la pile
+void create(struct ArrayStack *stack, int size) {
+  stack->array = malloc(size * 8);
+  stack->size = size;
+  stack->topIndex = 0;
+}
+
+// Libération de la pile
+void destroy(struct ArrayStack *stack) {
+  free(stack->array);
+}
 
 // Envoyer un donné dans la pile
 void push(struct ArrayStack *stack, int k) {
-  if (stack->topIndex < MAX)
+  if (stack->topIndex < stack->size)
     stack->array[stack->topIndex++] = k;
 }
 
