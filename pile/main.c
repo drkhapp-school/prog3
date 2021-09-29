@@ -1,6 +1,13 @@
 #include "ArrayStack.h"
 #include <stdio.h>
-#include <stdlib.h>
+
+// Difficilement réutilisable
+// -> Crée un fichier.h
+// Une seul instance
+// -> Crée une structure
+// TODO: Limite/gaspille d'espace
+// TODO: Robustesse
+// TODO: Un seul type de donnée, imposé
 
 int main() {
   struct ArrayStack stackA;
