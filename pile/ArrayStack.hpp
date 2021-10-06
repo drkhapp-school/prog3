@@ -1,26 +1,29 @@
-#include <stdlib.h>
+#include <cstdlib>
 
-class ArrayStack {
+// Pile statique
+template <typename T> class ArrayStack {
 private:
-  int *array;
-  int size;
-  int topIndex;
+  T *array;
+  size_t arrayLength;
+  size_t topIndex;
 
 public:
   // Constructeur
   ArrayStack(int size) {
-    array = malloc();
-    this->size = size;
+    array = new T[size];
+    arrayLength = size;
     topIndex = 0;
   }
 
   // Destructeur
-  ~ArrayStack() { free(array); }
+  ~ArrayStack() {
+    delete[] array; 
+  }
 
   // Envoyer un donné dans la pile
-  void push(int k) {
-    if (topIndex < size)
-      array[topIndex++] = k;
+  void push(T data) {
+    if (topIndex < arrayLength)
+      array[topIndex++] = data;
   }
 
   // Enlever un donné de la pile
@@ -30,8 +33,8 @@ public:
   }
 
   // Donner la valeur du dessus de la pile
-  int getTop() { return topIndex ? array[topIndex - 1] : NULL; }
+  T getTop() { return topIndex ? array[topIndex - 1] : NULL; }
 
   // Donner la grosseur de la pile
-  int getSize() { return size; }
+  size_t getSize() { return topIndex; }
 };
