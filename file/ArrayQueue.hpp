@@ -8,21 +8,36 @@ private:
   size_t frontIndex;
 
 public:
-  ArrayQueue() {}
-  ~ArrayQueue() {}
+  ArrayQueue(size_t length) {
+    array = new T[length];
+    size = length;
+    frontIndex = count = 0;
+  }
+
+  ~ArrayQueue() { delete[] array; }
 
   // Ajoute une donnée à la file.
-  void push(T data) {};
+  void push(T data) {
+    if (count < size) {
+      array[(frontIndex + count) % size] = data;
+      count++;
+    }
+  };
 
   // Enleve une donné de la file.
-  void pop() {};
-  
+  void pop() {
+    if (count) {
+      frontIndex = ++frontIndex % size;
+      count--;
+    }
+  };
+
   // Retourne la valeur en avant de la file.
-  T getFront() {};
+  T getFront() { return count ? array[frontIndex] : NULL; };
 
   // Retourne la valeur en arrière de la file.
-  T getBack() {};
+  T getBack() { return count ? array[(frontIndex + count - 1) % size] : NULL; };
 
   // Retourne la grosseur de la file.
-  size_t getSize() {};
+  size_t getCount() { return count; };
 };
