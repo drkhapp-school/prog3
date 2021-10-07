@@ -1,6 +1,5 @@
 #include "ArrayQueue.hpp"
 #include "ArrayStack.hpp"
-#include <cstdio>
 #include <iostream>
 #include <string>
 
@@ -22,12 +21,17 @@ int postfixToResult(ArrayQueue<string> *postfixQueue) {
 
 ///\brief Fonction principale.
 ///\return Code de terminaison de programme.
-int main() {
+int main(int argc, char **argv) {
   int size;
   string infix;
 
-  cout << "Quel est l'opération? ";
-  getline(cin, infix);
+  if (!argv[1]) {
+    cout << "Quel est l'opération? ";
+    getline(cin, infix);
+  } else {
+    infix = argv[1];
+    infix.erase(remove(infix.begin(), infix.end(), '"'), infix.end());
+  }
 
   size = infix.length();
   ArrayQueue<string> fileInfix(size);
@@ -66,7 +70,7 @@ int main() {
 
   // TODO : Appel des fonction pour transformer l'expression et calculer le
   // résultat.
- ArrayQueue<string> *filePostfix = infixToPostfix(&fileInfix);
+  ArrayQueue<string> *filePostfix = infixToPostfix(&fileInfix);
 
   return 0;
 }
