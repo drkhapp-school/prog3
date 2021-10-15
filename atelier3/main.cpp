@@ -1,9 +1,25 @@
 #include "ArrayQueue.hpp"
 #include "ArrayStack.hpp"
+#include <cctype>
 #include <iostream>
 #include <string>
 
 using namespace std;
+
+// Défini la priorité des operations.
+int priority(char expression) {
+  switch (expression) {
+  case '+':
+  case '-':
+    return 1;
+  case '%':
+  case '/':
+  case '*':
+    return 2;
+  default:
+    return 0;
+  }
+}
 
 ///\brief Transformation d'une expression infixe en expression postfixe.
 ///\param expressionQueue File contenant les opérandes et des opérateurs de
@@ -12,7 +28,7 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
   // TODO : Implémentation ...
   int size = expressionQueue->getCount();
   ArrayQueue<string> *queuePostfix = new ArrayQueue<string>(size);
-  ArrayStack<string> *stackOperators = new ArrayStack<string>(size);
+  ArrayStack<char> *stackOperators = new ArrayStack<char>(size);
 
   for (int i = 0; i < size; i++) {
     string expression = expressionQueue->getFront();
@@ -20,28 +36,42 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
 
     switch (expression[0]) {
     case '(':
-      stackOperators->push(expression);
+      stackOperators->push(expression[0]);
       break;
     case ')':
-      while (stackOperators->getTop() != "(") {
-        queuePostfix->push(stackOperators->getTop());
+      while (stackOperators->getTop() != '(') {
+        queuePostfix->push(string(1, stackOperators->getTop()));
+        cout << stackOperators->getTop();
         stackOperators->pop();
       }
-      queuePostfix->push(stackOperators->getTop());
       stackOperators->pop();
       break;
     case '+':
     case '-':
-    case '*':
-    case 'x':
     case '%':
     case '/':
+    case '*':
+      while (stackOperators->getSize() > 0 &&
+             priority(stackOperators->getTop()) >= priority(expression[0])) {
+        queuePostfix->push(string(1, stackOperators->getTop()));
+        cout << stackOperators->getTop();
+        stackOperators->pop();
+      }
+      stackOperators->push(expression[0]);
       break;
     default:
       queuePostfix->push(expression);
+      cout << expression;
       break;
     }
   }
+
+  while (stackOperators->getSize() != 0) {
+    queuePostfix->push(string(1, stackOperators->getTop()));
+    cout << stackOperators->getTop();
+    stackOperators->pop();
+  }
+
   return queuePostfix;
 }
 
@@ -68,44 +98,57 @@ int main(int argc, char **argv) {
   }
 
   size = infix.length();
-  ArrayQueue<string> *fileInfix = new ArrayQueue<string>(size);
 
   // TODO : Enfilement des opérandes et des opérateurs de l'expression infixe.
+  ArrayQueue<string> *fileInfix = new ArrayQueue<string>(size);
+
+  cout << "Infix: ";
   for (string::size_type i = 0; i < size; i++) {
-    string input;
     // parse int
-    for (int buffer = 0; isdigit(infix[i]) && i < size; buffer++)
-      input += infix[i++];
+    if (isdigit(infix[i])) {
+      string input;
+      while (isdigit(infix[i]) && i < size)
+        input += infix[i++];
 
-    fileInfix->push(input);
-
+      fileInfix->push(input);
+      cout << input;
+    }
     // parse operator
     switch (infix[i]) {
     case '+':
     case '-':
     case '*':
-    case 'x':
     case '/':
     case '(':
     case ')':
-      fileInfix->push(to_string(infix[i]));
+    case '%':
+      fileInfix->push(string(1, infix[i]));
+      cout << string(1, infix[i]);
       break;
     case '\0':
     case ' ':
       break;
     default:
-      cout << "Invalid input. '" << infix[i] << "'" << endl
+      cout << endl
+           << "Invalid input. '" << infix[i] << "'" << endl
            << "Please only use digits 0 to 9, and the symbols + - * x / "
               "( ) %."
            << endl;
       return 1;
     }
   }
+  cout << endl;
 
   // TODO : Appel des fonction pour transformer l'expression et calculer le
   // résultat.
-  ArrayQueue<string> *filePostfix = infixToPostfix(fileInfix);
+  ArrayQueue<string> *filePostfix;
+
+  cout << "Postfix: ";
+  filePostfix = infixToPostfix(fileInfix);
+  cout << endl;
+
   int reponse = postfixToResult(filePostfix);
+  cout << "Réponse: " << reponse << endl;
 
   return 0;
 }
