@@ -7,13 +7,14 @@
 using namespace std;
 
 // Défini la priorité des operations.
-int priority(char expression) {
+int getPriority(char expression) {
   switch (expression) {
   case '+':
   case '-':
     return 1;
   case '%':
   case '/':
+  case 'x':
   case '*':
     return 2;
   default:
@@ -26,11 +27,12 @@ int priority(char expression) {
 /// l'expression infixe. \return File de l'expression postfixe.
 ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
   // TODO : Implémentation ...
-  int size = expressionQueue->getCount();
-  ArrayQueue<string> *queuePostfix = new ArrayQueue<string>(size);
-  ArrayStack<char> *stackOperators = new ArrayStack<char>(size);
+  ArrayQueue<string> *queuePostfix =
+      new ArrayQueue<string>(expressionQueue->getCount());
+  ArrayStack<char> *stackOperators =
+      new ArrayStack<char>(expressionQueue->getCount());
 
-  for (int i = 0; i < size; i++) {
+  while (expressionQueue->getCount()) {
     string expression = expressionQueue->getFront();
     expressionQueue->pop();
 
@@ -50,9 +52,11 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
     case '-':
     case '%':
     case '/':
+    case 'x':
     case '*':
       while (stackOperators->getSize() > 0 &&
-             priority(stackOperators->getTop()) >= priority(expression[0])) {
+             getPriority(stackOperators->getTop()) >=
+                 getPriority(expression[0])) {
         queuePostfix->push(string(1, stackOperators->getTop()));
         cout << stackOperators->getTop();
         stackOperators->pop();
@@ -66,12 +70,15 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
     }
   }
 
-  while (stackOperators->getSize() != 0) {
+  delete expressionQueue;
+
+  while (stackOperators->getSize()) {
     queuePostfix->push(string(1, stackOperators->getTop()));
     cout << stackOperators->getTop();
     stackOperators->pop();
   }
 
+  delete stackOperators;
   return queuePostfix;
 }
 
@@ -80,7 +87,47 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
 /// l'expression postfixe. \return Résultat de l'expression postfixe.
 int postfixToResult(ArrayQueue<string> *postfixQueue) {
   // TODO: Implémentation ...
-  return 0;
+  int reponse;
+  ArrayStack<int> *stackOperand = new ArrayStack<int>(postfixQueue->getCount());
+
+  while (postfixQueue->getCount()) {
+    string expression = postfixQueue->getFront();
+    postfixQueue->pop();
+
+    if (isdigit(expression[0])) {
+      stackOperand->push(stoi(expression));
+    } else {
+      int secondOp = stackOperand->getTop();
+      stackOperand->pop();
+      int firstOp = stackOperand->getTop();
+      stackOperand->pop();
+
+      switch (expression[0]) {
+      case '+':
+        stackOperand->push(firstOp + secondOp);
+        break;
+      case '-':
+        stackOperand->push(firstOp - secondOp);
+        break;
+      case 'x':
+      case '*':
+        stackOperand->push(firstOp * secondOp);
+        break;
+      case '/':
+        stackOperand->push(firstOp / secondOp);
+        break;
+      case '%':
+        stackOperand->push(firstOp % secondOp);
+        break;
+      }
+    }
+  }
+
+  delete postfixQueue;
+  reponse = stackOperand->getTop();
+  delete stackOperand;
+
+  return reponse;
 }
 
 ///\brief Fonction principale.
@@ -118,6 +165,7 @@ int main(int argc, char **argv) {
     case '+':
     case '-':
     case '*':
+    case 'x':
     case '/':
     case '(':
     case ')':
