@@ -7,8 +7,8 @@
 using namespace std;
 
 // Défini la priorité des operations.
-int getPriority(char expression) {
-  switch (expression) {
+int getPriority(string expression) {
+  switch (expression[0]) {
   case '+':
   case '-':
     return 1;
@@ -29,8 +29,8 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
   // TODO : Implémentation ...
   ArrayQueue<string> *queuePostfix =
       new ArrayQueue<string>(expressionQueue->getCount());
-  ArrayStack<char> *stackOperators =
-      new ArrayStack<char>(expressionQueue->getCount());
+  ArrayStack<string> *stackOperators =
+      new ArrayStack<string>(expressionQueue->getCount());
 
   while (expressionQueue->getCount()) {
     string expression = expressionQueue->getFront();
@@ -38,11 +38,11 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
 
     switch (expression[0]) {
     case '(':
-      stackOperators->push(expression[0]);
+      stackOperators->push(expression);
       break;
     case ')':
-      while (stackOperators->getTop() != '(') {
-        queuePostfix->push(string(1, stackOperators->getTop()));
+      while (stackOperators->getTop() != "(") {
+        queuePostfix->push(stackOperators->getTop());
         cout << stackOperators->getTop();
         stackOperators->pop();
       }
@@ -55,13 +55,12 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
     case 'x':
     case '*':
       while (stackOperators->getSize() > 0 &&
-             getPriority(stackOperators->getTop()) >=
-                 getPriority(expression[0])) {
-        queuePostfix->push(string(1, stackOperators->getTop()));
+             getPriority(stackOperators->getTop()) >= getPriority(expression)) {
+        queuePostfix->push(stackOperators->getTop());
         cout << stackOperators->getTop();
         stackOperators->pop();
       }
-      stackOperators->push(expression[0]);
+      stackOperators->push(expression);
       break;
     default:
       queuePostfix->push(expression);
@@ -73,7 +72,7 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
   delete expressionQueue;
 
   while (stackOperators->getSize()) {
-    queuePostfix->push(string(1, stackOperators->getTop()));
+    queuePostfix->push(stackOperators->getTop());
     cout << stackOperators->getTop();
     stackOperators->pop();
   }
