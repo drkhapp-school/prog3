@@ -4,37 +4,15 @@
  * rateurs.
  * @author Jean-Philippe Miguel-Gagnon
  * @version v1.0.0
- * @date 2021-10-18
+ * @date 2021-10-22
  */
 #include "ArrayQueue.hpp"
 #include "ArrayStack.hpp"
+#include <cmath>
 #include <iostream>
 #include <string>
 
 using namespace std;
-
-/**
- * @brief Détermine si une expression est un chiffre.
- * @param expression Le expression à tester.
- * @return Vrai si c'est un chiffre, sinon faux.
- */
-bool isDigit(char expression) {
-  switch (expression) {
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9':
-    return true;
-  default:
-    return false;
-  }
-}
 
 /**
  * @brief Détermine si une expression est un opérateur valid.
@@ -49,6 +27,7 @@ bool isOperator(string expression) {
   case '-':
   case '%':
   case '/':
+  case '^':
   case 'x':
   case '*':
     return true;
@@ -72,6 +51,8 @@ unsigned char getPriority(string expression) {
   case 'x':
   case '*':
     return 2;
+  case '^':
+    return 3;
   default:
     return 0;
   }
@@ -83,92 +64,93 @@ unsigned char getPriority(string expression) {
  * @return File de l'expression postfixe.
  */
 ArrayQueue<string> *inputToInfix(string input) {
-  ArrayQueue<string> *fileInfix = new ArrayQueue<string>(input.length());
+  ArrayQueue<string> *infixQueue = new ArrayQueue<string>(input.length());
   for (string::size_type i = 0; i < input.length(); i++) {
-    // Vérification des nombres
-    if (isDigit(input[i])) {
+    // Vérification d'opérande
+    if (isdigit(input[i])) {
       string buffer;
-      while (isDigit(input[i]) && i < input.length())
+      while (isdigit(input[i]))
         buffer += input[i++];
 
-      fileInfix->push(buffer);
+      infixQueue->push(buffer);
       cout << buffer;
     }
-    // Vérfiication de l'operateur
+    // Vérification de l'operateur
     if (isOperator(string(1, input[i]))) {
-      fileInfix->push(string(1, input[i]));
-      cout << string(1, input[i]);
+      infixQueue->push(string(1, input[i]));
+      cout << input[i];
     }
   }
-  return fileInfix;
+  return infixQueue;
 }
 
 /**
  * @brief Transformation d'une expression infixe en expression postfixe.
- * @param expressionQueue File contenant les opérandes et des opérateurs de l
+ * @param expressQueue File contenant les opérandes et des opérateurs de l
  * expression infixe.
  * @return File de l'expression postfixe.
  */
-ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
-  int size = expressionQueue->getCount();
-  ArrayQueue<string> *queuePostfix = new ArrayQueue<string>(size);
-  ArrayStack<string> *stackOperators = new ArrayStack<string>(size);
+ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressQueue) {
+  size_t size = expressQueue->getCount();
+  ArrayQueue<string> *postfixQueue = new ArrayQueue<string>(size);
+  ArrayStack<string> *operatorStack = new ArrayStack<string>(size);
 
-  while (expressionQueue->getCount()) {
-    string expression = expressionQueue->getFront();
-    expressionQueue->pop();
+  while (expressQueue->getCount()) {
+    string express = expressQueue->getFront();
+    expressQueue->pop();
 
-    if (isOperator(expression)) {
-      switch (expression[0]) {
+    // Operateurs
+    if (isOperator(express)) {
+      switch (express[0]) {
       case '(':
-        stackOperators->push(expression);
+        operatorStack->push(express);
         break;
       case ')':
-        while (stackOperators->getSize() > 0 &&
-               stackOperators->getTop() != "(") {
-          queuePostfix->push(stackOperators->getTop());
-          cout << stackOperators->getTop();
-          stackOperators->pop();
+        while (operatorStack->getSize() > 0 &&
+               operatorStack->getTop() != "(") {
+          postfixQueue->push(operatorStack->getTop());
+          cout << operatorStack->getTop();
+          operatorStack->pop();
         }
 
-        if (stackOperators->getSize() == 0) {
+        if (operatorStack->getSize() == 0) {
           cerr << endl << endl << "Paranthèse ouvrante manquante." << endl;
           exit(1);
         }
 
-        stackOperators->pop();
+        operatorStack->pop();
         break;
       default:
-        while (stackOperators->getSize() > 0 &&
-               getPriority(stackOperators->getTop()) >=
-                   getPriority(expression)) {
-          queuePostfix->push(stackOperators->getTop());
-          cout << stackOperators->getTop();
-          stackOperators->pop();
+        while (operatorStack->getSize() > 0 &&
+               getPriority(operatorStack->getTop()) >=
+                   getPriority(express)) {
+          postfixQueue->push(operatorStack->getTop());
+          cout << operatorStack->getTop();
+          operatorStack->pop();
         }
-        stackOperators->push(expression);
+        operatorStack->push(express);
         break;
       }
     }
-    // Nombres
+    // Opérandes
     else {
-      queuePostfix->push(expression);
-      cout << expression;
+      postfixQueue->push(express);
+      cout << express;
     }
   }
+  delete expressQueue;
 
-  delete expressionQueue;
-
-  while (stackOperators->getSize()) {
-    if (stackOperators->getTop() != "(") {
-      queuePostfix->push(stackOperators->getTop());
-      cout << stackOperators->getTop();
+  // Opérateurs restantes
+  while (operatorStack->getSize()) {
+    if (operatorStack->getTop() != "(") {
+      postfixQueue->push(operatorStack->getTop());
+      cout << operatorStack->getTop();
     }
-    stackOperators->pop();
+    operatorStack->pop();
   }
+  delete operatorStack;
 
-  delete stackOperators;
-  return queuePostfix;
+  return postfixQueue;
 }
 
 /**
@@ -177,47 +159,49 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressionQueue) {
  * l'expression postfixe.
  * @return Résultat de l'expression postfixe.
  */
-int postfixToResult(ArrayQueue<string> *postfixQueue) {
-  ArrayStack<int> *stackOperand = new ArrayStack<int>(postfixQueue->getCount());
+size_t postfixToResult(ArrayQueue<string> *postfixQueue) {
+  ArrayStack<size_t> *operStack =
+      new ArrayStack<size_t>(postfixQueue->getCount());
 
   while (postfixQueue->getCount()) {
     string expression = postfixQueue->getFront();
     postfixQueue->pop();
 
     if (isdigit(expression[0])) {
-      stackOperand->push(stoi(expression));
+      operStack->push(stoi(expression));
     } else {
-      int secondOp = stackOperand->getTop();
-      stackOperand->pop();
-      int firstOp = stackOperand->getTop();
-      stackOperand->pop();
+      size_t secondOp = operStack->getTop();
+      operStack->pop();
+      size_t firstOp = operStack->getTop();
+      operStack->pop();
 
       switch (expression[0]) {
       case '+':
-        stackOperand->push(firstOp + secondOp);
+        operStack->push(firstOp + secondOp);
         break;
       case '-':
-        stackOperand->push(firstOp - secondOp);
+        operStack->push(firstOp - secondOp);
         break;
       case 'x':
       case '*':
-        stackOperand->push(firstOp * secondOp);
+        operStack->push(firstOp * secondOp);
         break;
       case '/':
-        stackOperand->push(firstOp / secondOp);
+        operStack->push(firstOp / secondOp);
         break;
       case '%':
-        stackOperand->push(firstOp % secondOp);
+        operStack->push(firstOp % secondOp);
         break;
+      case '^':
+        operStack->push(pow(firstOp, secondOp));
       }
     }
   }
-
   delete postfixQueue;
 
-  int reponse;
-  reponse = stackOperand->getTop();
-  delete stackOperand;
+  size_t reponse;
+  reponse = operStack->getTop();
+  delete operStack;
 
   return reponse;
 }
@@ -228,27 +212,28 @@ int postfixToResult(ArrayQueue<string> *postfixQueue) {
  */
 int main(int argc, char **argv) {
   string input;
-
   if (argv[1]) {
     input = argv[1];
     input.erase(remove(input.begin(), input.end(), '"'), input.end());
   } else {
     cout << "Quel est l'opération? ";
     getline(cin, input);
+    cout << endl;
   }
+  cout << "Entrée: " << input << endl;
 
-  ArrayQueue<string> *fileInfix;
+  ArrayQueue<string> *infixQueue;
   cout << "Infix: ";
-  fileInfix = inputToInfix(input);
+  infixQueue = inputToInfix(input);
   cout << endl;
 
-  ArrayQueue<string> *filePostfix;
+  ArrayQueue<string> *postfixQueue;
   cout << "Postfix: ";
-  filePostfix = infixToPostfix(fileInfix);
+  postfixQueue = infixToPostfix(infixQueue);
   cout << endl;
 
-  int reponse = postfixToResult(filePostfix);
-  cout << "Réponse: " << reponse << endl;
+  size_t reponse = postfixToResult(postfixQueue);
+  cout << "Évaluation: " << reponse << endl;
 
   return 0;
 }
