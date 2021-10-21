@@ -6,9 +6,8 @@
  * @version v1.0.0
  * @date 2021-10-22
  */
-#include "ArrayQueue.hpp"
-#include "ArrayStack.hpp"
-#include <cmath>
+#include "../include/ArrayQueue.hpp"
+#include "../include/ArrayStack.hpp"
 #include <iostream>
 #include <string>
 
@@ -27,7 +26,6 @@ bool isOperator(string expression) {
   case '-':
   case '%':
   case '/':
-  case '^':
   case 'x':
   case '*':
     return true;
@@ -91,7 +89,7 @@ ArrayQueue<string> *inputToInfix(string input) {
  * @return File de l'expression postfixe.
  */
 ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressQueue) {
-  size_t size = expressQueue->getCount();
+  int size = expressQueue->getCount();
   ArrayQueue<string> *postfixQueue = new ArrayQueue<string>(size);
   ArrayStack<string> *operatorStack = new ArrayStack<string>(size);
 
@@ -159,7 +157,7 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressQueue) {
  * l'expression postfixe.
  * @return Résultat de l'expression postfixe.
  */
-size_t postfixToResult(ArrayQueue<string> *postfixQueue) {
+int postfixToResult(ArrayQueue<string> *postfixQueue) {
   ArrayStack<size_t> *operStack =
       new ArrayStack<size_t>(postfixQueue->getCount());
 
@@ -170,9 +168,9 @@ size_t postfixToResult(ArrayQueue<string> *postfixQueue) {
     if (isdigit(expression[0])) {
       operStack->push(stoi(expression));
     } else {
-      size_t secondOp = operStack->getTop();
+      int secondOp = operStack->getTop();
       operStack->pop();
-      size_t firstOp = operStack->getTop();
+      int firstOp = operStack->getTop();
       operStack->pop();
 
       switch (expression[0]) {
@@ -192,14 +190,12 @@ size_t postfixToResult(ArrayQueue<string> *postfixQueue) {
       case '%':
         operStack->push(firstOp % secondOp);
         break;
-      case '^':
-        operStack->push(pow(firstOp, secondOp));
       }
     }
   }
   delete postfixQueue;
 
-  size_t reponse;
+  int reponse;
   reponse = operStack->getTop();
   delete operStack;
 
@@ -232,7 +228,7 @@ int main(int argc, char **argv) {
   postfixQueue = infixToPostfix(infixQueue);
   cout << endl;
 
-  size_t reponse = postfixToResult(postfixQueue);
+  int reponse = postfixToResult(postfixQueue);
   cout << "Évaluation: " << reponse << endl;
 
   return 0;
