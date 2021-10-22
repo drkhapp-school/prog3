@@ -14,6 +14,11 @@ public:
     count = 0;
   }
 
+  ~Queue() {
+    while (first)
+      pop();
+  }
+
   void push(T data) {
     if (!last) {
       last = new SLNode<T>(data);
@@ -40,7 +45,7 @@ public:
 
   T back() { return last ? last->data : NULL; }
 
-  size_t size() { 
+  size_t size() {
     size_t count = 0;
     SLNode<T> *runner = first;
     while (runner) {
