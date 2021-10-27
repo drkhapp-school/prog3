@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.21)
-project(tp1)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -w -framework SDL2 -framework SDL2_image -framework SDL2_ttf -F /Library/Frameworks -L/Users/darkhappy/Repositories/prog/prog3/tp1/include/ -l420C35JOTP1 -I /Library/Frameworks/SDL2.framework/Headers -I /Library/Frameworks/SDL2_image.framework/Headers -I /Library/Frameworks/SDL2_ttf.framework/Headers") 
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_FLAGS "-w -framework SDL2 -framework SDL2_image -framework SDL2_ttf -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers -I /Library/Frameworks/SDL2_image.framework/Headers -I /Library/Frameworks/SDL2_ttf.framework/Headers") 
+set(CMAKE_OSX_SYSROOT "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include")
+
+project(tp1)
 
 # Include source files
 file(GLOB SOURCES "src/*.cpp")
-
-message(${SDL2_DIR})
+find_library(LIB420C35JOTP1 420C35JOTP1 include)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} ${LIB420C35JOTP1}) 

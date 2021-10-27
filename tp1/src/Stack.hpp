@@ -1,6 +1,5 @@
 #include "SLNode.hpp"
 #include <cstdlib>
-#include <iostream>
 
 template <typename T> class Stack {
 private:
@@ -33,5 +32,17 @@ public:
   }
 
   T top() { return first ? first->data : NULL; }
-  size_t size() {}
+
+  size_t size() {
+    if (first) {
+      size_t result = 1;
+      SLNode<T> *runner = first->next;
+      while (runner) {
+        runner = runner->next;
+        result++;
+      }
+      return result;
+    }
+    return 0;
+  }
 };
