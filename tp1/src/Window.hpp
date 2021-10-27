@@ -12,7 +12,6 @@ private:
 
 public:
   Window();
-  ~Window();
 
   void clear();
   void drawSquare(Square square, const unsigned char &x,
