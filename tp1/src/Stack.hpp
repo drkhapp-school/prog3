@@ -13,7 +13,7 @@ public:
   }
 
   ~Stack() {
-    while (first)
+    while (count)
       pop();
   }
 
@@ -23,7 +23,7 @@ public:
   }
 
   void pop() {
-    if (first) {
+    if (count) {
       SLNode<T> *temp = first;
       first = first->next;
       delete temp;
@@ -31,18 +31,9 @@ public:
     }
   }
 
-  T top() { return first ? first->data : NULL; }
+  T top() { return count ? first->data : NULL; }
 
   size_t size() {
-    if (first) {
-      size_t result = 1;
-      SLNode<T> *runner = first->next;
-      while (runner) {
-        runner = runner->next;
-        result++;
-      }
-      return result;
-    }
-    return 0;
+    return count;
   }
 };
