@@ -21,8 +21,8 @@ public:
     this->maze = maze;
     this->path = new Stack<Position *>;
 
-    for (int x = 0; x < 53; x++)
-      for (int y = 0; y < 53; y++)
+    for (unsigned char x = 0; x < 53; x++)
+      for (unsigned char y = 0; y < 53; y++)
         if (maze->getSquare(x, y) == Square::ENTRY) {
           path->push(new Position(x, y));
           setDirections();
@@ -47,12 +47,13 @@ public:
 
     // Déterminer la direction à prendre
     unsigned char direction = 0;
-    switch (current->getDirectionCount()) {
+    unsigned char directionCount = current->getDirectionCount();
+    switch (directionCount) {
     case 0:
       delete current;
       return path->pop();
     case 1:
-      while (current->dir[direction] == false)
+      while (!current->dir[direction])
         direction++;
       break;
     default:
@@ -62,6 +63,7 @@ public:
       break;
     }
 
+    // Avancer un pas
     current->dir[direction] = false;
     unsigned char provenance;
     switch (direction) {
@@ -87,8 +89,8 @@ public:
   }
 
   void onRefresh() {
-    for (int x = 0; x < 53; x++)
-      for (int y = 0; y < 53; y++)
+    for (unsigned char x = 0; x < 53; x++)
+      for (unsigned char y = 0; y < 53; y++)
         drawSquare(maze->getSquare(x, y), x, y);
 
     drawSquare(Square::PATH, path->top()->x, path->top()->y);
