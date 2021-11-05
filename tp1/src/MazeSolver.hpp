@@ -5,15 +5,16 @@
 
 class MazeSolver : public Window {
 private:
+  enum Direction { NORTH = 0, SOUTH = 1, WEST = 2, EAST = 3 };
   Maze *maze;
   Stack<Position *> *path;
 
   void setDirections() {
     Position *pos = path->top();
-    pos->dir[0] = maze->getSquare(pos->x, pos->y + 1) != Square::WALL;
-    pos->dir[1] = maze->getSquare(pos->x, pos->y - 1) != Square::WALL;
-    pos->dir[2] = maze->getSquare(pos->x - 1, pos->y) != Square::WALL;
-    pos->dir[3] = maze->getSquare(pos->x + 1, pos->y) != Square::WALL;
+    pos->dir[NORTH] = maze->getSquare(pos->x, pos->y - 1) != Square::WALL;
+    pos->dir[SOUTH] = maze->getSquare(pos->x, pos->y + 1) != Square::WALL;
+    pos->dir[WEST] = maze->getSquare(pos->x - 1, pos->y) != Square::WALL;
+    pos->dir[EAST] = maze->getSquare(pos->x + 1, pos->y) != Square::WALL;
   }
 
 public:
@@ -42,7 +43,8 @@ public:
   void onUpdate() {
     Position *current = path->top();
 
-    if (maze->getSquare(current->x, current->y) == Square::EXIT)
+    if (!path->size() ||
+        maze->getSquare(current->x, current->y) == Square::EXIT)
       return;
 
     // Déterminer la direction à prendre
@@ -67,19 +69,19 @@ public:
     current->dir[direction] = false;
     unsigned char provenance;
     switch (direction) {
-    case 0:
-      path->push(new Position(current->x, current->y + 1));
+    case NORTH:
+      path->push(new Position(current->x, current->y - 1));
       provenance = 1;
       break;
-    case 1:
-      path->push(new Position(current->x, current->y - 1));
+    case SOUTH:
+      path->push(new Position(current->x, current->y + 1));
       provenance = 0;
       break;
-    case 2:
+    case WEST:
       path->push(new Position(current->x - 1, current->y));
       provenance = 3;
       break;
-    case 3:
+    case EAST:
       path->push(new Position(current->x + 1, current->y));
       provenance = 2;
       break;
