@@ -104,7 +104,7 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressQueue) {
         operatorStack->push(express);
         break;
       case ')':
-        while (operatorStack->getSize() > 0 &&
+        while (operatorStack->getSize()  &&
                operatorStack->getTop() != "(") {
           postfixQueue->push(operatorStack->getTop());
           cout << operatorStack->getTop();
@@ -119,7 +119,7 @@ ArrayQueue<string> *infixToPostfix(ArrayQueue<string> *expressQueue) {
         operatorStack->pop();
         break;
       default:
-        while (operatorStack->getSize() > 0 &&
+        while (operatorStack->getSize()  &&
                getPriority(operatorStack->getTop()) >=
                    getPriority(express)) {
           postfixQueue->push(operatorStack->getTop());
