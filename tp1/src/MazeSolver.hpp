@@ -1,3 +1,10 @@
+/**
+ * @file MazeSolver.hpp
+ * @brief Algorithme utilisant le concept de la pile pour résoudre un labyrinthe de 53 par 53.
+ * @author 1927230 - Jean-Philippe
+ * @version 1.0.0
+ * @date 2021-11-05
+ */
 #include "Maze.hpp"
 #include "Position.hpp"
 #include "Stack.hpp"
@@ -9,6 +16,10 @@ private:
   Maze *maze;
   Stack<Position *> *path;
 
+  /**
+   * @brief Défini les directions possibles qu'on peut aller selon la position 
+   * actuel.
+   */
   void setDirections() {
     Position *pos = path->top();
     pos->dir[NORTH] = maze->getSquare(pos->x, pos->y - 1) != Square::WALL;
@@ -49,8 +60,7 @@ public:
 
     // Déterminer la direction à prendre
     unsigned char direction = 0;
-    unsigned char directionCount = current->getDirectionCount();
-    switch (directionCount) {
+    switch (current->getDirectionCount()) {
     case 0:
       delete current;
       return path->pop();
