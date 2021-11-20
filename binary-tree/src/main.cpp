@@ -7,6 +7,12 @@ using namespace std;
 int main() {
   BSTree<int> *tree = new BSTree<int>;
   queue<int> *traversal;
+  tree->remove(42);
+  tree->remove(42);
+  tree->remove(42);
+  tree->remove(42);
+  tree->add(42);
+  tree->remove(42);
   /* tree->recursiveAdd(4); */
   /* tree->recursiveAdd(6); */
   /* tree->recursiveAdd(8); */
@@ -19,12 +25,20 @@ int main() {
   tree->add(666);
   tree->add(32);
   tree->add(69);
+  tree->add(21);
   tree->add(23);
   tree->add(11);
   tree->add(12);
-  tree->add(21);
 
-  tree->remove(11);
+  tree->remove(42);
+  tree->remove(32);
+  tree->remove(404);
+
+  tree->add(1000);
+  tree->add(424);
+  tree->add(42);
+  tree->remove(0);
+  tree->remove(12);
 
   cout << "Prefix: [";
   traversal = tree->traversal(Prefix);

@@ -121,17 +121,18 @@ public:
   }
 
   void remove(T data) {
-    enum Direction { Left, Right };
+    if (!root) return;
+    enum Direction { Left, Right, Root };
     DLNode<T> *parent = root;
-    Direction direct;
     bool found = false;
+    Direction childSide;
     while (!found) {
       if (data < parent->data) {
         if (!parent->left)
           return;
         if (parent->left->data == data) {
           found = true;
-          direct = Left;
+          childSide = Left;
         } else
           parent = parent->left;
       } else if (data > parent->data) {
@@ -139,46 +140,80 @@ public:
           return;
         if (parent->right->data == data) {
           found = true;
-          direct = Right;
+          childSide = Right;
         } else
           parent = parent->right;
+      } else {
+        found = true;
+        childSide = Root;
       }
     }
+
     DLNode<T> *leaf;
-    switch (direct) {
-    case Left:
-      leaf = parent->left;
+    if (childSide == Root) {
+      if (root->left) {
+        DLNode<T> *tempParent = root->left;
+        while (tempParent->right && tempParent->right->right) {
+          tempParent = tempParent->right;
+        }
+        if (tempParent->right) {
+          root->data = tempParent->right->data;
+          delete tempParent->right;
+          tempParent->right = nullptr;
+        } else {
+          root->data = tempParent->data;
+          root->left = tempParent->left;
+        }
+      } else if (root->right) {
+        DLNode<T> *tempParent = root->right;
+        while (tempParent->left && tempParent->left->left) {
+          tempParent = tempParent->left;
+        }
+        if (tempParent->left) {
+          root->data = tempParent->left->data;
+          delete tempParent->left;
+          tempParent->left = nullptr;
+        } else {
+          root->data = tempParent->data;
+          root->left = tempParent->left;
+        }
+      } else {
+        delete root;
+        root = nullptr;
+      }
+    } else {
+      leaf = childSide == Left ? parent->left : parent->right;
       if (!leaf->left && !leaf->right) {
-        parent->left = nullptr;
+        (childSide == Left) ? parent->left = nullptr : parent->right = nullptr;
         delete leaf;
-      } else if (parent->left && parent->right) {
+      } else if (leaf->left && leaf->right) {
+        DLNode<T> *tempParent = leaf->left;
+        while (tempParent->right && tempParent->right->right) {
+          tempParent = tempParent->right;
+        }
+        if (tempParent->right) {
+          leaf->data = tempParent->right->data;
+          delete tempParent->right;
+          tempParent->right = nullptr;
+        } else {
+          leaf->data = tempParent->data;
+          leaf->left = tempParent->left;
+        }
       } else {
         if (leaf->left) {
           parent->left = leaf->left;
+          (childSide == Left) ? parent->left = leaf->left
+                              : parent->right = leaf->left;
           delete leaf;
         } else {
           parent->left = leaf->right;
+          (childSide == Left) ? parent->left = leaf->right
+                              : parent->right = leaf->right;
           delete leaf;
         }
       }
-      break;
-    case Right:
-      leaf = parent->right;
-      if (!leaf->left && !leaf->right) {
-        parent->right = nullptr;
-        delete leaf;
-      } else if (leaf->left && leaf->right) {
-      } else {
-        if (leaf->left) {
-          parent->right = leaf->left;
-          delete leaf;
-        } else {
-          parent->right = leaf->right;
-          delete leaf;
-        }
-      }
-      break;
     }
+    count--;
   }
 
   bool search(T data) {
