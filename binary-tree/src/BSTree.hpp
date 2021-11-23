@@ -121,18 +121,21 @@ public:
   }
 
   void remove(T data) {
-    if (!root) return;
-    enum Direction { Left, Right, Root };
+    if (!root)
+      return;
+
+    enum Path { Left, Right, Root };
     DLNode<T> *parent = root;
     bool found = false;
-    Direction childSide;
+    Path side;
+
     while (!found) {
       if (data < parent->data) {
         if (!parent->left)
           return;
         if (parent->left->data == data) {
           found = true;
-          childSide = Left;
+          side = Left;
         } else
           parent = parent->left;
       } else if (data > parent->data) {
@@ -140,17 +143,17 @@ public:
           return;
         if (parent->right->data == data) {
           found = true;
-          childSide = Right;
+          side = Right;
         } else
           parent = parent->right;
       } else {
         found = true;
-        childSide = Root;
+        side = Root;
       }
     }
 
-    DLNode<T> *leaf;
-    if (childSide == Root) {
+    switch (side) {
+    case Root:
       if (root->left) {
         DLNode<T> *tempParent = root->left;
         while (tempParent->right && tempParent->right->right) {
@@ -175,18 +178,17 @@ public:
           tempParent->left = nullptr;
         } else {
           root->data = tempParent->data;
-          root->left = tempParent->left;
+          root->right = tempParent->right;
         }
       } else {
         delete root;
         root = nullptr;
       }
-    } else {
-      leaf = childSide == Left ? parent->left : parent->right;
-      if (!leaf->left && !leaf->right) {
-        (childSide == Left) ? parent->left = nullptr : parent->right = nullptr;
-        delete leaf;
-      } else if (leaf->left && leaf->right) {
+      break;
+
+    default:
+      DLNode<T> *leaf;
+      if (leaf->left && leaf->right) {
         DLNode<T> *tempParent = leaf->left;
         while (tempParent->right && tempParent->right->right) {
           tempParent = tempParent->right;
@@ -199,19 +201,27 @@ public:
           leaf->data = tempParent->data;
           leaf->left = tempParent->left;
         }
-      } else {
-        if (leaf->left) {
-          parent->left = leaf->left;
-          (childSide == Left) ? parent->left = leaf->left
-                              : parent->right = leaf->left;
-          delete leaf;
-        } else {
-          parent->left = leaf->right;
-          (childSide == Left) ? parent->left = leaf->right
-                              : parent->right = leaf->right;
-          delete leaf;
-        }
+        delete leaf;
+        break;
       }
+
+    case Left:
+      if (!leaf->left && !leaf->right) {
+        parent->left = nullptr;
+      } else {
+        parent->left = leaf->left ? leaf->left : leaf->right;
+      }
+      delete leaf;
+      break;
+
+    case Right:
+      if (!leaf->left && !leaf->right) {
+        parent->right = nullptr;
+      } else {
+        parent->right = leaf->left ? leaf->left : leaf->right;
+      }
+      delete leaf;
+      break;
     }
     count--;
   }
@@ -228,4 +238,6 @@ public:
     }
     return false;
   }
+
+  size_t size() { return count; }
 };
