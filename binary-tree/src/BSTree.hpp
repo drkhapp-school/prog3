@@ -126,6 +126,7 @@ public:
 
     enum Path { Left, Right, Root };
     DLNode<T> *parent = root;
+    DLNode<T> *leaf;
     bool found = false;
     Path side;
 
@@ -136,6 +137,7 @@ public:
         if (parent->left->data == data) {
           found = true;
           side = Left;
+          leaf = parent->left;
         } else
           parent = parent->left;
       } else if (data > parent->data) {
@@ -144,6 +146,7 @@ public:
         if (parent->right->data == data) {
           found = true;
           side = Right;
+          leaf = parent->right;
         } else
           parent = parent->right;
       } else {
@@ -153,41 +156,7 @@ public:
     }
 
     switch (side) {
-    case Root:
-      if (root->left) {
-        DLNode<T> *tempParent = root->left;
-        while (tempParent->right && tempParent->right->right) {
-          tempParent = tempParent->right;
-        }
-        if (tempParent->right) {
-          root->data = tempParent->right->data;
-          delete tempParent->right;
-          tempParent->right = nullptr;
-        } else {
-          root->data = tempParent->data;
-          root->left = tempParent->left;
-        }
-      } else if (root->right) {
-        DLNode<T> *tempParent = root->right;
-        while (tempParent->left && tempParent->left->left) {
-          tempParent = tempParent->left;
-        }
-        if (tempParent->left) {
-          root->data = tempParent->left->data;
-          delete tempParent->left;
-          tempParent->left = nullptr;
-        } else {
-          root->data = tempParent->data;
-          root->right = tempParent->right;
-        }
-      } else {
-        delete root;
-        root = nullptr;
-      }
-      break;
-
     default:
-      DLNode<T> *leaf;
       if (leaf->left && leaf->right) {
         DLNode<T> *tempParent = leaf->left;
         while (tempParent->right && tempParent->right->right) {
@@ -222,6 +191,21 @@ public:
       }
       delete leaf;
       break;
+
+    case Root:
+      if (!root->left && !root->right) {
+        delete root;
+        root = nullptr;
+      } else {
+        DLNode<T> toDelete = root;
+        if (root->left) {
+          root = root->left;
+        } else {
+          root = root->right;
+        }
+        delete toDelete;
+      }
+      break;
     }
     count--;
   }
@@ -238,6 +222,4 @@ public:
     }
     return false;
   }
-
-  size_t size() { return count; }
 };
