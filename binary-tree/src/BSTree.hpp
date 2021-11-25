@@ -197,7 +197,7 @@ public:
         delete root;
         root = nullptr;
       } else {
-        DLNode<T> toDelete = root;
+        DLNode<T> *toDelete = root;
         if (root->left) {
           root = root->left;
         } else {
