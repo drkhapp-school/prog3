@@ -4,9 +4,9 @@ using namespace std;
 
 class Note {
 private:
-	string name;
-	string content;
+  string name;
+  string content;
 
 public:
-	// TODO : Implémentation des méthodes nécessaires
+  // TODO : Implémentation des méthodes nécessaires
 };
