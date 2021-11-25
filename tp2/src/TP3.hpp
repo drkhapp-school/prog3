@@ -1,33 +1,67 @@
-#include <queue>
-#include <stack>
-//#include "BSTree.hpp"
+ /**
+ * @file TP3.hpp
+ * @brief Classeur de dossier et de fichiers. 
+ * @author 1927230 - Jean-Philippe 
+ * @version 1.0.0
+ * @date 2021-11-25
+ */
+#include "Stack.hpp"
+#include "Queue.hpp" 
+#include "BSTree.hpp"
 //#include "AVLTree"
-#include "Window.hpp"
 #include "Folder.hpp"
+#include "Window.hpp"
 
 using namespace std;
 
 inline Folder *root;
-inline stack<Folder *> *path;
+inline Stack<Folder *> *path;
 // AVLTree<int>* selections;
 
+/** 
+ * @brief Obtention de l'indice de l'élément clické
+ *
+ * @param x Position de la souris, en pixels, sur l'axe des x
+ * @param y Position de la souris, en pixels, sur l'axe des y
+ * @return Indice de l'élément
+ */
 inline int getIndex(const int &x, const int &y) {
   // TODO : Retourner l'indice de l'élément clické
   return -1;
 }
 
+/**
+ * @brief Automatiquement appelée lorsque la fenêtre s'ouvre
+ */
 inline void onInit() {
   // TODO : Initialisations
-    Window::drawIcon(Icon::NOTE, 0, 0);
-    Window::drawString("yo whats good", 0, 0);
 }
 
+/**
+ * @brief Automatiquement appelée environ 60 fois par seconde
+ */
 inline void onRefresh() {
   // TODO : Afficher le contenu du dossier actuel
+  Window::drawIcon(Icon::FOLDER, 0, 0);
+  Window::drawString("really sussy folder", 0, Window::getIconHeight());
+  Window::drawIcon(Icon::FOLDER, Window::getIconWidth(), 0);
+  Window::drawString("folder two >.<", Window::getIconWidth(),
+                     Window::getIconHeight());
+  Window::drawIcon(Icon::NOTE, Window::getIconWidth() * 2, 0);
+  Window::drawString("notes.txt", Window::getIconWidth() * 2,
+                     Window::getIconHeight());
 }
 
+/**
+ * @brief Automatiquement appelée lors d'un click de souris dans la fenêtre
+ *
+ * @param x Position, en pixels, sur l'axe des x
+ * @param y Position, en pixels, sur l'axe des y
+ * @param button Bouton clické 
+ * @param ctrl Si la touche "Ctrl" est enfoncée
+ */
 inline void onWindowClick(const int &x, const int &y, const bool &button,
-                   const bool &ctrl) {
+                          const bool &ctrl) {
   if (button) {
     // TODO : Click sur un dossier ou une note du dossier actuel
   } else {
@@ -35,6 +69,12 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
   }
 }
 
+/**
+ * @brief Automatiquement appelée lors d'un click de souris dans le menu 
+ * contextuel
+ * @param menu Élément de menu clické
+ *
+ */
 inline void onMenuClick(const unsigned int &menuItem) {
   switch (menuItem) {
   case Menu::NEW_FOLDER:
@@ -50,8 +90,8 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
 
   case Menu::DELETE:
-    // TODO : Supprimer le ou les dossiers, et tout ce qu'ils contiennent, et la
-    // ou les notes sélectionnés
+    // TODO : Supprimer le ou les dossiers, et tout ce qu'ils contiennent, et
+    // les notes sélectionnés
     break;
 
   case Menu::ENCODE:
@@ -68,6 +108,9 @@ inline void onMenuClick(const unsigned int &menuItem) {
   }
 }
 
+/**
+ * @brief Automatiquement appelée lorsque la fenêtre se ferme
+ */
 inline void onQuit() {
   // TODO : Libérations
 }
