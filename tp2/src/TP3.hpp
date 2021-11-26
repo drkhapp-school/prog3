@@ -91,13 +91,10 @@ inline void onRefresh() {
   int columns = Window::getWidth() / Window::getIconWidth();
   int index = 0;
   int widthIndex = 0;
-  int heightIndex = 0;
+  int heightIndex = -1;
 
   // Root folder
-  Window::drawIcon(Icon::FOLDER, 0, 0);
-  Window::drawString("..", centerText(index, ".."),
-                     Window::getIconHeight() * 0.75);
-  index++;
+  folders.insert(folders.begin(), new Folder(".."));
 
   // All folders
   for (Folder *item : folders) {
@@ -158,7 +155,6 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
   }
   case Menu::NEW_NOTE: {
-    // TODO : Créer une nouvelle note dans le dossier actuel
     string name = Window::showTextField();
     path->top()->createNote(new Note(name));
     break;
