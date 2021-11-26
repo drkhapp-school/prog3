@@ -139,7 +139,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
     // TODO : Click sur un dossier ou une note du dossier actuel
   } else {
     // TODO : Afficher le menu
-    Window::showMenu(x, y);
+    Window::showMenu(x, y, Menu::NEW_FOLDER | Menu::NEW_NOTE);
   }
 }
 
@@ -151,14 +151,18 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
  */
 inline void onMenuClick(const unsigned int &menuItem) {
   switch (menuItem) {
-  case Menu::NEW_FOLDER:
+  case Menu::NEW_FOLDER: {
     // TODO : Créer un nouveau dossier dans le dossier actuel
+    string name = Window::showTextField();
+    path->top()->createFolder(new Folder(name));
     break;
-
-  case Menu::NEW_NOTE:
+  }
+  case Menu::NEW_NOTE: {
     // TODO : Créer une nouvelle note dans le dossier actuel
+    string name = Window::showTextField();
+    path->top()->createNote(new Note(name));
     break;
-
+  }
   case Menu::RENAME:
     // TODO : Renommer le dossier ou la note
     break;
