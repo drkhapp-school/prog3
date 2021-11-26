@@ -16,11 +16,12 @@ private:
 
 public:
   // TODO : Implémentation des méthodes nécessaires
-  Note(string name) {
+  Note(string name, string content = "") {
     this->name = name;
+    this->content = content;    
   }
   ~Note() {}
-
+  
   void setName(string name) {
     this->name = name;
   }

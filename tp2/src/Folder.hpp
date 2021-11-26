@@ -17,12 +17,6 @@ private:
   vector<Folder *> folders;
   vector<Note *> notes;
 
-public:
-  // TODO : Implémentation des méthodes nécessaires
-  Folder(string name) { this->name = name; }
-
-  ~Folder() {}
-
   void sortFolders(int min, int max) {
     int left = min;
     int right = max;
@@ -62,6 +56,12 @@ public:
     if (max > pivot + 1)
       sortNotes(pivot + 1, max);
   }
+
+public:
+  // TODO : Implémentation des méthodes nécessaires
+  Folder(string name) { this->name = name; }
+
+  ~Folder() {}
 
   void createFolder(Folder *item) {
     folders.push_back(item);
