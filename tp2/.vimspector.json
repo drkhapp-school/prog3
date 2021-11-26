@@ -1,0 +1,14 @@
+{
+  "configurations": {
+    "launch": {
+      "adapter": "CodeLLDB",
+      "filetypes": [ "cpp", "c" ],
+      "configuration": {
+        "type": "lldb",
+        "request": "launch",
+        "program": "${workspaceRoot}/build/tp2"
+      }
+    }
+  }
+}
+
