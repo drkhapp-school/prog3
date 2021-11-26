@@ -16,4 +16,24 @@ private:
 
 public:
   // TODO : Implémentation des méthodes nécessaires
+  Note(string name) {
+    this->name = name;
+  }
+  ~Note() {}
+
+  void setName(string name) {
+    this->name = name;
+  }
+  
+  void setContent(string content) {
+    this->content = content;
+  }
+
+  string getName() {
+    return name;
+  }
+
+  string getContent() {
+    return content;
+  }
 };

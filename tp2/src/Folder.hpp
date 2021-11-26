@@ -19,4 +19,14 @@ private:
 
 public:
   // TODO : Implémentation des méthodes nécessaires
+  Folder(string name) { this->name = name; }
+
+  ~Folder() {}
+
+  void createFolder(Folder *item) { folders.push_back(item); }
+  void createNote(Note *item) { notes.push_back(item); }
+  string getName() { return name; }
+  void rename(string name) { this->name = name; }
+  vector<Folder *> getFolders() { return folders; }
+  vector<Note *> getNotes() { return notes; }
 };

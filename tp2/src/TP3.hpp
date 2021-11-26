@@ -1,13 +1,13 @@
- /**
+/**
  * @file TP3.hpp
- * @brief Classeur de dossier et de fichiers. 
- * @author 1927230 - Jean-Philippe 
+ * @brief Classeur de dossier et de fichiers.
+ * @author 1927230 - Jean-Philippe
  * @version 1.0.0
  * @date 2021-11-25
  */
-#include "Stack.hpp"
-#include "Queue.hpp" 
 #include "BSTree.hpp"
+#include "Queue.hpp"
+#include "Stack.hpp"
 //#include "AVLTree"
 #include "Folder.hpp"
 #include "Window.hpp"
@@ -18,7 +18,32 @@ inline Folder *root;
 inline Stack<Folder *> *path;
 // AVLTree<int>* selections;
 
-/** 
+/**
+ * @brief Obtention du centre d'un icône selon le texte envoyée.
+ *
+ * @param index L'indice de l'icône
+ * @param name Le texte que l'on veut centrer
+ *
+ * @return Position du texte, en pixels, sur l'axe des x
+ */
+inline int centerText(int index, string name) {
+  return ((Window::getIconWidth() - Window::getStringWidth(name)) / 2) +
+         (Window::getIconWidth() * (index));
+}
+
+inline void drawItem(Icon icon, string name, int x, int y,
+                     bool selected = false) {
+  if (Window::getStringWidth(name) >= Window::getIconWidth()) {
+    name.resize(10);
+    name.replace(name.end(), name.end() - 3, "...");
+  }
+  Window::drawIcon(icon, x * Window::getIconWidth(),
+                   y * Window::getIconHeight(), selected);
+  Window::drawString(name, centerText(x, name),
+                     (y + 0.75) * Window::getIconHeight());
+}
+
+/**
  * @brief Obtention de l'indice de l'élément clické
  *
  * @param x Position de la souris, en pixels, sur l'axe des x
@@ -35,6 +60,24 @@ inline int getIndex(const int &x, const int &y) {
  */
 inline void onInit() {
   // TODO : Initialisations
+  root = new Folder("/");
+  path = new Stack<Folder *>();
+  path->push(root);
+  root->createFolder(new Folder("hiii"));
+  root->createFolder(new Folder("epic files"));
+  root->createFolder(new Folder("fucking long ass name like what the fuck"));
+  root->createNote(new Note("cute note"));
+  root->createNote(new Note("ok note"));
+  root->createNote(new Note("secret note"));
+  root->createNote(new Note("interesting note"));
+  root->createNote(new Note("meh note"));
+  root->createNote(new Note("ugly note"));
+  root->createNote(new Note("a note"));
+  root->createNote(new Note("note"));
+  root->createNote(new Note("?? note"));
+  root->createNote(new Note("note..."));
+  root->createNote(new Note("note! >.<"));
+  root->createNote(new Note("extremelylongnamebecauseitisabsolutegarbage"));
 }
 
 /**
@@ -42,14 +85,44 @@ inline void onInit() {
  */
 inline void onRefresh() {
   // TODO : Afficher le contenu du dossier actuel
+  // Get the current folder's contents
+  vector<Folder *> folders = path->top()->getFolders();
+  vector<Note *> notes = path->top()->getNotes();
+  int columns = Window::getWidth() / Window::getIconWidth();
+  int index = 0;
+  int widthIndex = 0;
+  int heightIndex = 0;
+
+  // Root folder
   Window::drawIcon(Icon::FOLDER, 0, 0);
-  Window::drawString("really sussy folder", 0, Window::getIconHeight());
-  Window::drawIcon(Icon::FOLDER, Window::getIconWidth(), 0);
-  Window::drawString("folder two >.<", Window::getIconWidth(),
-                     Window::getIconHeight());
-  Window::drawIcon(Icon::NOTE, Window::getIconWidth() * 2, 0);
-  Window::drawString("notes.txt", Window::getIconWidth() * 2,
-                     Window::getIconHeight());
+  Window::drawString("..", centerText(index, ".."),
+                     Window::getIconHeight() * 0.75);
+  index++;
+
+  // All folders
+  for (Folder *item : folders) {
+    if (!(index % columns)) {
+      heightIndex++;
+      widthIndex = 0;
+    } else {
+      widthIndex++;
+    }
+    index++;
+
+    drawItem(Icon::FOLDER, item->getName(), widthIndex, heightIndex);
+  }
+
+  // All notes
+  for (Note *item : notes) {
+    if (!(index % columns)) {
+      heightIndex++;
+      widthIndex = 0;
+    } else {
+      widthIndex++;
+    }
+    index++;
+    drawItem(Icon::NOTE, item->getName(), widthIndex, heightIndex);
+  }
 }
 
 /**
@@ -66,6 +139,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
     // TODO : Click sur un dossier ou une note du dossier actuel
   } else {
     // TODO : Afficher le menu
+    Window::showMenu(x, y);
   }
 }
 
