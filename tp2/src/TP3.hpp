@@ -15,20 +15,7 @@
 using namespace std;
 
 inline Stack<Folder *> *path;
-// AVLTree<int>* selections;
-
-/**
- * @brief Obtention du centre d'un icône selon le texte envoyée.
- *
- * @param index L'indice de l'icône
- * @param name Le texte que l'on veut centrer
- *
- * @return Position du texte, en pixels, sur l'axe des x
- */
-inline int centerText(int index, string name) {
-  return (((Window::getIconWidth() - Window::getStringWidth(name)) / 2) +
-          index);
-}
+inline BSTree<int> *selections;
 
 inline void drawItem(Icon icon, string name, int x, int y,
                      bool selected = false) {
@@ -37,8 +24,9 @@ inline void drawItem(Icon icon, string name, int x, int y,
     name.replace(name.end(), name.end() - 3, "...");
   }
   Window::drawIcon(icon, x, y, selected);
-  Window::drawString(name, centerText(x, name),
-                     y + (Window::getIconHeight() * 0.75));
+  Window::drawString(
+      name, (Window::getIconWidth() - Window::getStringWidth(name)) / 2 + x,
+      y + (Window::getIconHeight() * 0.75));
 }
 
 /**
@@ -60,12 +48,14 @@ inline int getIndex(const int &x, const int &y) {
  */
 inline void onInit() {
   // TODO : Initialisations
-  Folder *root = new Folder("/");
+  Folder *root = new Folder("owo");
+  selections = new BSTree<int>;
   path = new Stack<Folder *>();
   path->push(root);
+
   root->createFolder(new Folder("hiii"));
   root->createFolder(new Folder("epic files"));
-  root->createFolder(new Folder("fucking long ass name like what the fuck"));
+  root->createFolder(new Folder("an interesting name"));
   root->createNote(new Note("cute note"));
   root->createNote(new Note("ok note"));
   root->createNote(new Note("secret note"));
@@ -78,6 +68,7 @@ inline void onInit() {
   root->createNote(new Note("note..."));
   root->createNote(new Note("note! >.<"));
   root->createNote(new Note("extremelylongnamebecauseitisabsolutegarbage"));
+  Window::setTitle(path->top()->getName());
 }
 
 /**
@@ -86,31 +77,34 @@ inline void onInit() {
 inline void onRefresh() {
   // TODO : Afficher le contenu du dossier actuel
   // Get the current folder's contents
-  vector<Folder *> folders = path->top()->getFolders();
-  vector<Note *> notes = path->top()->getNotes();
   int x = 0;
   int y = 0;
 
-  // Root folder
-  folders.insert(folders.begin(), new Folder(".."));
+  // Go back to previous
+  if (path->top()->getName() != "/") {
+    drawItem(Icon::FOLDER, "..", 0, 0, selections->search(-1));
+    x += Window::getIconWidth();
+  }
 
   // All folders
-  for (Folder *item : folders) {
+  for (int i = 0; i < path->top()->getFoldersCount(); i++) {
     if (x + Window::getIconWidth() > Window::getWidth()) {
       y += Window::getIconHeight();
       x = 0;
     }
-    drawItem(Icon::FOLDER, item->getName(), x, y);
+    drawItem(Icon::FOLDER, path->top()->getChildFolderName(i), x, y,
+             selections->search(i));
     x += Window::getIconWidth();
   }
 
   // All notes
-  for (Note *item : notes) {
+  for (int i = 0; i < path->top()->getNotesCount(); i++) {
     if (x + Window::getIconWidth() > Window::getWidth()) {
       y += Window::getIconHeight();
       x = 0;
     }
-    drawItem(Icon::NOTE, item->getName(), x, y);
+    drawItem(Icon::NOTE, path->top()->getChildNoteName(i), x, y,
+             selections->search(path->top()->getFoldersCount() + i));
     x += Window::getIconWidth();
   }
 }
@@ -128,6 +122,23 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
   if (button) {
     // TODO : Click sur un dossier ou une note du dossier actuel
     int index = getIndex(x, y);
+
+    if (path->top()->getName() != "/")
+      index--;
+
+    if (ctrl) {
+      if (index <= path->top()->getSize() && index >= 0) {
+        if (selections->search(index)) {
+          selections->remove(index);
+        } else {
+          selections->add(index);
+        }
+      }
+    } else {
+      selections->empty();
+      if (index <= path->top()->getSize())
+        selections->add(index);
+    }
   } else {
     // TODO : Afficher le menu
     Window::showMenu(x, y, Menu::NEW_FOLDER | Menu::NEW_NOTE);
@@ -180,5 +191,11 @@ inline void onMenuClick(const unsigned int &menuItem) {
  * @brief Automatiquement appelée lorsque la fenêtre se ferme
  */
 inline void onQuit() {
-  // TODO : Libérations
+  // TODO : Libération
+  while (path->size()) {
+    delete path->top();
+    path->pop();
+  }
+  delete path;
+  delete selections;
 }

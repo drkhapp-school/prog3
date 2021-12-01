@@ -74,7 +74,16 @@ public:
   }
 
   string getName() { return name; }
+  int getSize() { return folders.size() + notes.size();}
   void rename(string name) { this->name = name; }
-  vector<Folder *> getFolders() { return folders; }
-  vector<Note *> getNotes() { return notes; }
+
+  int getFoldersCount() { return folders.size(); }
+  string getChildFolderName(size_t index) { return folders[index]->name; }
+  void renameChildFolder(size_t index, string name) {}
+
+  int getNotesCount() { return notes.size(); }
+  string getChildNoteName(size_t index) { return notes[index]->getName(); }
+  string getChildNoteContent(size_t index) { return notes[index]->getContent(); }
+  void renameChildNote(size_t index, string name) {}
+  void editChildNote(size_t index, string name) {}
 };
