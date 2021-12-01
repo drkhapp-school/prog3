@@ -74,16 +74,25 @@ public:
   }
 
   string getName() { return name; }
-  int getSize() { return folders.size() + notes.size();}
+  int getSize() { return folders.size() + notes.size(); }
   void rename(string name) { this->name = name; }
 
   int getFoldersCount() { return folders.size(); }
-  string getChildFolderName(size_t index) { return folders[index]->name; }
-  void renameChildFolder(size_t index, string name) {}
+  Folder *getChildFolder(size_t index) { return folders[index]; }
+  string getChildFolderName(size_t index) { return folders[index]->getName(); }
+  void renameChildFolder(size_t index, string name) {
+    folders[index]->name = name;
+    sortFolders(0, folders.size() - 1);
+  }
 
   int getNotesCount() { return notes.size(); }
   string getChildNoteName(size_t index) { return notes[index]->getName(); }
-  string getChildNoteContent(size_t index) { return notes[index]->getContent(); }
-  void renameChildNote(size_t index, string name) {}
+  string getChildNoteContent(size_t index) {
+    return notes[index]->getContent();
+  }
+  void renameChildNote(size_t index, string name) {
+    notes[index]->setName(name);
+    sortNotes(0, notes.size() - 1);
+  }
   void editChildNote(size_t index, string name) {}
 };
