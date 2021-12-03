@@ -51,6 +51,16 @@ inline int getIndex(const int &x, const int &y) {
 
   return (index);
 }
+
+inline void createRandomFolders(Folder *parent, int random, int depth) {
+  if (depth == 5)
+    return;
+  depth++;
+  for (int i = 0; i < rand() % random + 5; i++) {
+    parent->addFolder(new Folder(to_string((i + 1) * 20))); 
+    parent->addNote(new Note(to_string(i + 1)));
+    createRandomFolders(parent->getChildFolder(i), random, depth);
+  }
 }
 
 /**
@@ -59,6 +69,9 @@ inline int getIndex(const int &x, const int &y) {
 inline void onInit() {
   // TODO : Initialisations
   Folder *root = new Folder("/");
+  Folder *randomFolders = new Folder("Random folders");
+  srand(time(0));
+  createRandomFolders(randomFolders, 5, 0);
   selections = new BSTree<int>;
   path = new Stack<Folder *>();
   path->push(root);
