@@ -54,12 +54,6 @@ public:
   T back() { return last ? last->data : NULL; }
 
   size_t size() {
-    size_t count = 0;
-    SLNode<T> *runner = first;
-    while (runner) {
-      runner = runner->next;
-      count++;
-    }
     return count;
   }
 };
