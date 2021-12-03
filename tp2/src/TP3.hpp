@@ -17,6 +17,7 @@ using namespace std;
 inline Stack<Folder *> *path;
 inline BSTree<int> *selections;
 inline int selectedIndex;
+inline string breadcrumb;
 
 inline void drawItem(Icon icon, string name, int x, int y,
                      bool selected = false) {
@@ -41,9 +42,15 @@ inline void drawItem(Icon icon, string name, int x, int y,
  */
 inline int getIndex(const int &x, const int &y) {
   // TODO : Retourner l'indice de l'élément clické
-  int columns = Window::getWidth() / Window::getIconWidth();
+  int index = x / Window::getIconWidth() +
+              (y / Window::getIconHeight() * Window::getWidth() /
+               Window::getIconWidth());
 
-  return (x / Window::getIconWidth() + (y / Window::getIconHeight() * columns));
+  if (path->size() > 1)
+    index--;
+
+  return (index);
+}
 }
 
 /**
@@ -56,22 +63,23 @@ inline void onInit() {
   path = new Stack<Folder *>();
   path->push(root);
 
-  root->createFolder(new Folder("hiii"));
-  root->createFolder(new Folder("epic files"));
-  root->createFolder(new Folder("an interesting name"));
-  root->createNote(new Note("cute note"));
-  root->createNote(new Note("ok note"));
-  root->createNote(new Note("secret note"));
-  root->createNote(new Note("interesting note"));
-  root->createNote(new Note("meh note"));
-  root->createNote(new Note("ugly note"));
-  root->createNote(new Note("a note"));
-  root->createNote(new Note("note"));
-  root->createNote(new Note("?? note"));
-  root->createNote(new Note("note..."));
-  root->createNote(new Note("note! >.<"));
-  root->createNote(new Note("extremelylongnamebecauseitisabsolutegarbage"));
-  Window::setTitle(path->top()->getName());
+  root->addFolder(new Folder("hiii"));
+  root->addFolder(new Folder("an interesting name"));
+  root->addFolder(randomFolders);
+  root->addNote(new Note("cute note"));
+  root->addNote(new Note("ok note"));
+  root->addNote(new Note("secret note"));
+  root->addNote(new Note("interesting note"));
+  root->addNote(new Note("meh note"));
+  root->addNote(new Note("ugly note"));
+  root->addNote(new Note("a note"));
+  root->addNote(new Note("note"));
+  root->addNote(new Note("?? note"));
+  root->addNote(new Note("note..."));
+  root->addNote(new Note("note! >.<"));
+  root->addNote(new Note("extremelylongnamebecauseitisabsolutegarbage"));
+  breadcrumb = path->top()->getName();
+  Window::setTitle(breadcrumb);
 }
 
 /**
@@ -123,9 +131,6 @@ inline void onRefresh() {
 inline void onWindowClick(const int &x, const int &y, const bool &button,
                           const bool &ctrl) {
   int index = getIndex(x, y);
-  if (path->size() > 1)
-    index--;
-
   if (button) {
     // TODO : Click sur un dossier ou une note du dossier actuel
     if (ctrl) {
@@ -140,11 +145,20 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
       if (selections->search(index)) {
         selections->empty();
         if (index == -1) {
+          breadcrumb.erase(breadcrumb.length() -
+                           path->top()->getName().length());
+          if (path->size() > 2) {
+            breadcrumb.erase(breadcrumb.length() - 1);
+          }
           path->pop();
         } else if (index < path->top()->getFoldersCount()) {
+          if (path->size() > 1) {
+            breadcrumb.append("/");
+          }
           path->push(path->top()->getChildFolder(index));
+          breadcrumb.append(path->top()->getName());
         }
-        Window::setTitle(path->top()->getName());
+        Window::setTitle(breadcrumb);
       } else {
         selections->empty();
         if (index <= path->top()->getSize())
@@ -185,14 +199,14 @@ inline void onMenuClick(const unsigned int &menuItem) {
   case Menu::NEW_FOLDER: {
     // TODO : Créer un nouveau dossier dans le dossier actuel
     string name = Window::showTextField();
-    if (name != "")
-      path->top()->createFolder(new Folder(name));
+    if (name != "" && !path->top()->folderExists(name))
+      path->top()->addFolder(new Folder(name));
     break;
   }
   case Menu::NEW_NOTE: {
     string name = Window::showTextField();
-    if (name != "")
-      path->top()->createNote(new Note(name));
+    if (name != "" && !path->top()->noteExists(name))
+      path->top()->addNote(new Note(name));
     break;
   }
   case Menu::RENAME: {
