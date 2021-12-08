@@ -57,7 +57,7 @@ inline void createRandomFolders(Folder *parent, int random, int depth) {
     return;
   depth++;
   for (int i = 0; i < rand() % random + 5; i++) {
-    parent->addFolder(new Folder(to_string((i + 1) * 20))); 
+    parent->addFolder(new Folder(to_string((i + 1) * 20)));
     parent->addNote(new Note(to_string(i + 1)));
     createRandomFolders(parent->getChildFolder(i), random, depth);
   }
@@ -164,14 +164,17 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
             breadcrumb.erase(breadcrumb.length() - 1);
           }
           path->pop();
+          Window::setTitle(breadcrumb);
         } else if (index < path->top()->getFoldersCount()) {
           if (path->size() > 1) {
             breadcrumb.append("/");
           }
           path->push(path->top()->getChildFolder(index));
           breadcrumb.append(path->top()->getName());
+          Window::setTitle(breadcrumb);
+        } else if (index < path->top()->getSize()) {
+          string newContent = Window::showTextField();
         }
-        Window::setTitle(breadcrumb);
       } else {
         selections->empty();
         if (index <= path->top()->getSize())
