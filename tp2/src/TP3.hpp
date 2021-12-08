@@ -34,14 +34,14 @@ inline void drawItem(Icon icon, string name, int x, int y,
 }
 
 /**
- * @brief Obtention de l'indice de l'élément clické
+ * @brief Obtention de l'indice de l'Ã©lÃ©ment clickÃ©
  *
  * @param x Position de la souris, en pixels, sur l'axe des x
  * @param y Position de la souris, en pixels, sur l'axe des y
- * @return Indice de l'élément
+ * @return Indice de l'Ã©lÃ©ment
  */
 inline int getIndex(const int &x, const int &y) {
-  // TODO : Retourner l'indice de l'élément clické
+  // TODO : Retourner l'indice de l'Ã©lÃ©ment clickÃ©
   int index = x / Window::getIconWidth() +
               (y / Window::getIconHeight() * Window::getWidth() /
                Window::getIconWidth());
@@ -49,7 +49,7 @@ inline int getIndex(const int &x, const int &y) {
   if (path->size() > 1)
     index--;
 
-  return (index);
+  return index;
 }
 
 inline void createRandomFolders(Folder *parent, int random, int depth) {
@@ -64,7 +64,7 @@ inline void createRandomFolders(Folder *parent, int random, int depth) {
 }
 
 /**
- * @brief Automatiquement appelée lorsque la fenêtre s'ouvre
+ * @brief Automatiquement appelÃ©e lorsque la fenÃªtre s'ouvre
  */
 inline void onInit() {
   // TODO : Initialisations
@@ -96,7 +96,7 @@ inline void onInit() {
 }
 
 /**
- * @brief Automatiquement appelée environ 60 fois par seconde
+ * @brief Automatiquement appelÃ©e environ 60 fois par seconde
  */
 inline void onRefresh() {
   // TODO : Afficher le contenu du dossier actuel
@@ -134,12 +134,12 @@ inline void onRefresh() {
 }
 
 /**
- * @brief Automatiquement appelée lors d'un click de souris dans la fenêtre
+ * @brief Automatiquement appelÃ©e lors d'un click de souris dans la fenÃªtre
  *
  * @param x Position, en pixels, sur l'axe des x
  * @param y Position, en pixels, sur l'axe des y
- * @param button Bouton clické 
- * @param ctrl Si la touche "Ctrl" est enfoncée
+ * @param button Bouton clickÃ© 
+ * @param ctrl Si la touche "Ctrl" est enfoncÃ©e
  */
 inline void onWindowClick(const int &x, const int &y, const bool &button,
                           const bool &ctrl) {
@@ -203,14 +203,14 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
 }
 
 /**
- * @brief Automatiquement appelée lors d'un click de souris dans le menu 
+ * @brief Automatiquement appelÃ©e lors d'un click de souris dans le menu 
  * contextuel
- * @param menu Élément de menu clické
+ * @param menu Ã‰lÃ©ment de menu clickÃ©
  */
 inline void onMenuClick(const unsigned int &menuItem) {
   switch (menuItem) {
   case Menu::NEW_FOLDER: {
-    // TODO : Créer un nouveau dossier dans le dossier actuel
+    // TODO : CrÃ©er un nouveau dossier dans le dossier actuel
     string name = Window::showTextField();
     if (name != "" && !path->top()->folderExists(name))
       path->top()->addFolder(new Folder(name));
@@ -241,7 +241,7 @@ inline void onMenuClick(const unsigned int &menuItem) {
   }
   case Menu::DELETE:
     // TODO : Supprimer le ou les dossiers, et tout ce qu'ils contiennent, et
-    // les notes sélectionnés
+    // les notes sÃ©lectionnÃ©s
     /* if (selectedIndex < path->top()->getFoldersCount()) { */
     /*   path->top()->deleteChildFolder(selectedIndex); */
     /* } else { */
@@ -252,11 +252,11 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
 
   case Menu::ENCODE:
-    // TODO : Encoder la note avec la méthode de Huffman
+    // TODO : Encoder la note avec la mÃ©thode de Huffman
     break;
 
   case Menu::DECODE:
-    // TODO : Décoder la note avec la méthode de Huffman
+    // TODO : DÃ©coder la note avec la mÃ©thode de Huffman
     break;
 
   case Menu::SELECT_ALL:
@@ -268,10 +268,10 @@ inline void onMenuClick(const unsigned int &menuItem) {
 }
 
 /**
- * @brief Automatiquement appelée lorsque la fenêtre se ferme
+ * @brief Automatiquement appelÃ©e lorsque la fenÃªtre se ferme
  */
 inline void onQuit() {
-  // TODO : Libération
+  // TODO : LibÃ©ration
   while (path->size()) {
     delete path->top();
     path->pop();
