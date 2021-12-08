@@ -209,4 +209,7 @@ public:
     }
     return false;
   }
+
+  size_t size() { return count; }
+  T top() { return root ? root->data : NULL; }
 };

@@ -60,7 +60,16 @@ public:
   // TODO : Implémentation des méthodes nécessaires
   Folder(string name) { this->name = name; }
 
-  ~Folder() {}
+  ~Folder() {
+    for (Folder *child : folders) {
+      delete child;
+    }
+    for (Note *child : notes) {
+      delete child;
+    }
+    folders.clear();
+    notes.clear();
+  }
 
   void addFolder(Folder *item) {
     if (folderExists(item->name))
@@ -98,6 +107,10 @@ public:
 
     return false;
   }
+  void deleteChildFolder(int index) {
+    delete folders[index];
+    folders.erase(folders.begin() + index);
+  }
 
   bool noteExists(string name) {
     for (Note *x : notes)
@@ -124,5 +137,11 @@ public:
     notes[index]->setName(name);
     sortNotes(0, notes.size() - 1);
   }
-  void editChildNote(size_t index, string name) {}
+  void editChildNote(size_t index, string content) {
+    notes[index]->setContent(content);
+  }
+  void deleteChildNote(int index) {
+    delete notes[index];
+    notes.erase(notes.begin() + index);
+  }
 };

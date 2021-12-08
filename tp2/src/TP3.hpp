@@ -52,33 +52,18 @@ inline int getIndex(const int &x, const int &y) {
   return index;
 }
 
-inline void createRandomFolders(Folder *parent, int random, int depth) {
-  if (depth == 5)
-    return;
-  depth++;
-  for (int i = 0; i < rand() % random + 5; i++) {
-    parent->addFolder(new Folder(to_string((i + 1) * 20)));
-    parent->addNote(new Note(to_string(i + 1)));
-    createRandomFolders(parent->getChildFolder(i), random, depth);
-  }
-}
-
 /**
  * @brief Automatiquement appelée lorsque la fenêtre s'ouvre
  */
 inline void onInit() {
   // TODO : Initialisations
   Folder *root = new Folder("/");
-  Folder *randomFolders = new Folder("Random folders");
-  srand(time(0));
-  createRandomFolders(randomFolders, 5, 0);
   selections = new BSTree<int>;
   path = new Stack<Folder *>();
   path->push(root);
 
   root->addFolder(new Folder("hiii"));
   root->addFolder(new Folder("an interesting name"));
-  root->addFolder(randomFolders);
   root->addNote(new Note("cute note"));
   root->addNote(new Note("ok note"));
   root->addNote(new Note("secret note"));
@@ -138,14 +123,16 @@ inline void onRefresh() {
  *
  * @param x Position, en pixels, sur l'axe des x
  * @param y Position, en pixels, sur l'axe des y
- * @param button Bouton clické 
+ * @param button Bouton clické
  * @param ctrl Si la touche "Ctrl" est enfoncée
  */
 inline void onWindowClick(const int &x, const int &y, const bool &button,
                           const bool &ctrl) {
   int index = getIndex(x, y);
+
+  // Manipulation des fichiers
   if (button) {
-    // TODO : Click sur un dossier ou une note du dossier actuel
+    // Selectionner plusieurs fichiers
     if (ctrl) {
       if (index <= path->top()->getSize() && index >= 0) {
         if (selections->search(index)) {
@@ -154,46 +141,57 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
           selections->add(index);
         }
       }
-    } else {
-      if (selections->search(index)) {
-        selections->empty();
-        if (index == -1) {
-          breadcrumb.erase(breadcrumb.length() -
-                           path->top()->getName().length());
-          if (path->size() > 2) {
-            breadcrumb.erase(breadcrumb.length() - 1);
-          }
-          path->pop();
-          Window::setTitle(breadcrumb);
-        } else if (index < path->top()->getFoldersCount()) {
-          if (path->size() > 1) {
-            breadcrumb.append("/");
-          }
-          path->push(path->top()->getChildFolder(index));
-          breadcrumb.append(path->top()->getName());
-          Window::setTitle(breadcrumb);
-        } else if (index < path->top()->getSize()) {
-          string newContent = Window::showTextField();
-        }
-      } else {
-        selections->empty();
-        if (index <= path->top()->getSize())
-          selections->add(index);
-      }
     }
-  } else {
-    // TODO : Afficher le menu
+    // Acc�der un fichier
+    else {
+      selections->empty();
+      // Retourner en arri�re
+      if (index == -1) {
+        breadcrumb.erase(breadcrumb.length() - path->top()->getName().length());
+        if (path->size() > 2) {
+          breadcrumb.erase(breadcrumb.length() - 1);
+        }
+        path->pop();
+      }
+
+      // Acc�der un dossier
+      else if (index < path->top()->getFoldersCount()) {
+        if (path->size() > 1) {
+          breadcrumb.append("/");
+        }
+        path->push(path->top()->getChildFolder(index));
+        breadcrumb.append(path->top()->getName());
+      }
+
+      // Modifier une note
+      else if (index < path->top()->getSize()) {
+        index -= path->top()->getFoldersCount();
+        Window::setTitle("Editing " + path->top()->getChildNoteName(index));
+        string content =
+            Window::showTextField(path->top()->getChildNoteContent(index));
+        path->top()->editChildNote(index, content);
+      }
+
+      Window::setTitle(breadcrumb);
+    }
+  }
+
+  // Menu
+  else {
+    // Click droit dans le vide
     if (index >= path->top()->getSize()) {
       Window::showMenu(x, y,
                        Menu::NEW_FOLDER | Menu::NEW_NOTE | Menu::SELECT_ALL);
-    } else {
-      if (!selections->search(index)) {
-        if (!ctrl) {
-          selections->empty();
-        }
-        selections->add(index);
-      }
+    }
+
+    else {
       if (index != -1) {
+        if (!selections->search(index)) {
+          if (!ctrl) {
+            selections->empty();
+          }
+          selections->add(index);
+        }
         selectedIndex = index;
         if (index < path->top()->getFoldersCount()) {
           Window::showMenu(x, y, Menu::RENAME | Menu::DELETE);
@@ -206,7 +204,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
 }
 
 /**
- * @brief Automatiquement appelée lors d'un click de souris dans le menu 
+ * @brief Automatiquement appelée lors d'un click de souris dans le menu
  * contextuel
  * @param menu Élément de menu clické
  */
@@ -242,17 +240,23 @@ inline void onMenuClick(const unsigned int &menuItem) {
     selections->empty();
     break;
   }
-  case Menu::DELETE:
+  case Menu::DELETE: {
     // TODO : Supprimer le ou les dossiers, et tout ce qu'ils contiennent, et
     // les notes sélectionnés
-    /* if (selectedIndex < path->top()->getFoldersCount()) { */
-    /*   path->top()->deleteChildFolder(selectedIndex); */
-    /* } else { */
-    /*   string name = Window::showTextField(); */
-    /*   path->top()->deleteChildNote(selectedIndex/); */
-    /* } */
-    /* selections->empty(); */
+
+    // FIX: multiple deletes
+    while (selections->size()) {
+      selectedIndex = selections->top();
+      selections->remove(selections->top());
+      if (selectedIndex < path->top()->getFoldersCount()) {
+        path->top()->deleteChildFolder(selectedIndex);
+      } else {
+        selectedIndex -= path->top()->getFoldersCount();
+        path->top()->deleteChildNote(selectedIndex);
+      }
+    }
     break;
+  }
 
   case Menu::ENCODE:
     // TODO : Encoder la note avec la méthode de Huffman
