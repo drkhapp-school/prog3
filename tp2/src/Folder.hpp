@@ -5,9 +5,8 @@
  * @version 1.0.0
  * @date 2021-11-25
  */
-#include <vector>
-
 #include "Note.hpp"
+#include <vector>
 
 using namespace std;
 
@@ -61,38 +60,79 @@ public:
   // TODO : Implémentation des méthodes nécessaires
   Folder(string name) { this->name = name; }
 
-  ~Folder() {}
+  ~Folder() {
+    for (Folder *child : folders) {
+      delete child;
+    }
+    for (Note *child : notes) {
+      delete child;
+    }
+    folders.clear();
+    notes.clear();
+  }
 
-  void createFolder(Folder *item) {
+  void add(Folder *item) {
+    if (folderExists(item->name))
+      return;
     folders.push_back(item);
     sortFolders(0, folders.size() - 1);
   }
 
-  void createNote(Note *item) {
+  string getName() { return name; }
+  int size() { return folders.size() + notes.size(); }
+  void rename(string name) { this->name = name; }
+  bool folderExists(string name) {
+    for (Folder *x : folders)
+      if (x->name == name)
+        return true;
+
+    return false;
+  }
+  int foldersSize() { return folders.size(); }
+  Folder *getChildFolder(size_t index) { return folders[index]; }
+  string getChildFolderName(size_t index) { return folders[index]->name; }
+  void renameChildFolder(size_t index, string name) {
+    if (folderExists(name))
+      return;
+    folders[index]->name = name;
+    sortFolders(0, folders.size() - 1);
+  }
+  void deleteChildFolder(int index) {
+    delete folders[index];
+    folders.erase(folders.begin() + index);
+  }
+
+  bool noteExists(string name) {
+    for (Note *x : notes)
+      if (x->getName() == name)
+        return true;
+
+    return false;
+  }
+
+  void add(Note *item) {
+    if (noteExists(item->getName()))
+      return;
     notes.push_back(item);
     sortNotes(0, notes.size() - 1);
   }
 
-  string getName() { return name; }
-  int getSize() { return folders.size() + notes.size(); }
-  void rename(string name) { this->name = name; }
-
-  int getFoldersCount() { return folders.size(); }
-  Folder *getChildFolder(size_t index) { return folders[index]; }
-  string getChildFolderName(size_t index) { return folders[index]->getName(); }
-  void renameChildFolder(size_t index, string name) {
-    folders[index]->name = name;
-    sortFolders(0, folders.size() - 1);
-  }
-
-  int getNotesCount() { return notes.size(); }
+  int notesSize() { return notes.size(); }
   string getChildNoteName(size_t index) { return notes[index]->getName(); }
   string getChildNoteContent(size_t index) {
     return notes[index]->getContent();
   }
   void renameChildNote(size_t index, string name) {
-    notes[index]->setName(name);
+    if (noteExists(name))
+      return;
+    notes[index]->rename(name);
     sortNotes(0, notes.size() - 1);
   }
-  void editChildNote(size_t index, string name) {}
+  void editChildNote(size_t index, string content) {
+    notes[index]->edit(content);
+  }
+  void deleteChildNote(int index) {
+    delete notes[index];
+    notes.erase(notes.begin() + index);
+  }
 };

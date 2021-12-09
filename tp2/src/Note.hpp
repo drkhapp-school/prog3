@@ -22,11 +22,11 @@ public:
   }
   ~Note() {}
   
-  void setName(string name) {
+  void rename(string name) {
     this->name = name;
   }
   
-  void setContent(string content) {
+  void edit(string content) {
     this->content = content;
   }
 

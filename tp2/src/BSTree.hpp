@@ -6,20 +6,20 @@
  * @date 2021-11-25
  */
 #include "DLNode.hpp"
+#include "Queue.hpp"
 #include <cstdlib>
 #include <iostream>
-#include <queue>
 
 using namespace ::std;
 
-enum Traversal { Prefix, Infix, Postfix, Breathfirst };
+enum Traversal { Prefix, Infix, Postfix, Breathfirst, ReverseInfix };
 
 template <typename T> class BSTree {
 private:
   DLNode<T> *root;
   size_t count;
 
-  void infixTraversal(DLNode<T> *node, queue<T> *result) {
+  void infixTraversal(DLNode<T> *node, Queue<T> *result) {
     if (node->left)
       infixTraversal(node->left, result);
     result->push(node->data);
@@ -27,7 +27,15 @@ private:
       infixTraversal(node->right, result);
   }
 
-  void prefixTraversal(DLNode<T> *node, queue<T> *result) {
+  void reverseInfixTraversal(DLNode<T> *node, Queue<T> *result) {
+    if (node->right)
+      reverseInfixTraversal(node->right, result);
+    result->push(node->data);
+    if (node->left)
+      reverseInfixTraversal(node->left, result);
+  }
+
+  void prefixTraversal(DLNode<T> *node, Queue<T> *result) {
     result->push(node->data);
     if (node->left)
       prefixTraversal(node->left, result);
@@ -35,7 +43,7 @@ private:
       prefixTraversal(node->right, result);
   }
 
-  void postfixTraversal(DLNode<T> *node, queue<T> *result) {
+  void postfixTraversal(DLNode<T> *node, Queue<T> *result) {
     if (node->left)
       postfixTraversal(node->left, result);
     if (node->right)
@@ -84,8 +92,8 @@ public:
     }
   }
 
-  queue<T> *traversal(Traversal type) {
-    queue<T> *result = new queue<T>();
+  Queue<T> *traversal(Traversal type) {
+    Queue<T> *result = new Queue<T>();
     if (root)
       switch (type) {
       case Prefix:
@@ -99,6 +107,8 @@ public:
         break;
       case Breathfirst:
         break;
+      case ReverseInfix:
+        reverseInfixTraversal(root, result);
       }
     return result;
   }
@@ -209,4 +219,7 @@ public:
     }
     return false;
   }
+
+  size_t size() { return count; }
+  T top() { return root ? root->data : NULL; }
 };
