@@ -16,7 +16,6 @@ using namespace std;
 
 inline Stack<Folder *> *path;
 inline BSTree<int> *selections;
-inline int selectedIndex;
 inline string breadcrumb;
 
 inline void drawItem(Icon icon, string name, int x, int y,
@@ -192,7 +191,6 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
           }
           selections->add(index);
         }
-        selectedIndex = index;
         if (index < path->top()->getFoldersCount()) {
           Window::showMenu(x, y, Menu::RENAME | Menu::DELETE);
         } else {
@@ -209,6 +207,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
  * @param menu Élément de menu clické
  */
 inline void onMenuClick(const unsigned int &menuItem) {
+  int index = selections->top();
   switch (menuItem) {
   case Menu::NEW_FOLDER: {
     // TODO : Créer un nouveau dossier dans le dossier actuel
@@ -225,17 +224,16 @@ inline void onMenuClick(const unsigned int &menuItem) {
   }
   case Menu::RENAME: {
     // TODO : Renommer le dossier ou la note
-    if (selectedIndex < path->top()->getFoldersCount()) {
+    if (index < path->top()->getFoldersCount()) {
       string name =
-          Window::showTextField(path->top()->getChildFolderName(selectedIndex));
+          Window::showTextField(path->top()->getChildFolderName(index));
       if (name != "")
-        path->top()->renameChildFolder(selectedIndex, name);
+        path->top()->renameChildFolder(index, name);
     } else {
-      selectedIndex -= path->top()->getFoldersCount();
-      string name =
-          Window::showTextField(path->top()->getChildNoteName(selectedIndex));
+      index -= path->top()->getFoldersCount();
+      string name = Window::showTextField(path->top()->getChildNoteName(index));
       if (name != "")
-        path->top()->renameChildNote(selectedIndex, name);
+        path->top()->renameChildNote(index, name);
     }
     selections->empty();
     break;
@@ -244,16 +242,24 @@ inline void onMenuClick(const unsigned int &menuItem) {
     // TODO : Supprimer le ou les dossiers, et tout ce qu'ils contiennent, et
     // les notes sélectionnés
 
-    // FIX: multiple deletes
-    while (selections->size()) {
-      selectedIndex = selections->top();
-      selections->remove(selections->top());
-      if (selectedIndex < path->top()->getFoldersCount()) {
-        path->top()->deleteChildFolder(selectedIndex);
+    // ASK: multiple deletes
+    Queue<int> *traversal = selections->traversal(Traversal::Infix);
+    Stack<int> *toDelete = new Stack<int>;
+
+    while (traversal->size()) {
+      toDelete->push(traversal->front());
+      traversal->pop();
+    }
+
+    while (toDelete->size()) {
+      index = toDelete->top();
+      if (index < path->top()->getFoldersCount()) {
+        path->top()->deleteChildFolder(index);
       } else {
-        selectedIndex -= path->top()->getFoldersCount();
-        path->top()->deleteChildNote(selectedIndex);
+        index -= path->top()->getFoldersCount();
+        path->top()->deleteChildNote(index);
       }
+      toDelete->pop();
     }
     break;
   }

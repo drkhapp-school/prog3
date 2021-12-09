@@ -124,6 +124,8 @@ public:
   Folder *getChildFolder(size_t index) { return folders[index]; }
   string getChildFolderName(size_t index) { return folders[index]->getName(); }
   void renameChildFolder(size_t index, string name) {
+    if (folderExists(name))
+      return;
     folders[index]->name = name;
     sortFolders(0, folders.size() - 1);
   }
@@ -134,6 +136,8 @@ public:
     return notes[index]->getContent();
   }
   void renameChildNote(size_t index, string name) {
+    if (noteExists(name))
+      return;
     notes[index]->setName(name);
     sortNotes(0, notes.size() - 1);
   }

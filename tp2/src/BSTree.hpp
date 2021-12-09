@@ -8,7 +8,7 @@
 #include "DLNode.hpp"
 #include <cstdlib>
 #include <iostream>
-#include <queue>
+#include "Queue.hpp"
 
 using namespace ::std;
 
@@ -19,7 +19,7 @@ private:
   DLNode<T> *root;
   size_t count;
 
-  void infixTraversal(DLNode<T> *node, queue<T> *result) {
+  void infixTraversal(DLNode<T> *node, Queue<T> *result) {
     if (node->left)
       infixTraversal(node->left, result);
     result->push(node->data);
@@ -27,7 +27,7 @@ private:
       infixTraversal(node->right, result);
   }
 
-  void prefixTraversal(DLNode<T> *node, queue<T> *result) {
+  void prefixTraversal(DLNode<T> *node, Queue<T> *result) {
     result->push(node->data);
     if (node->left)
       prefixTraversal(node->left, result);
@@ -35,7 +35,7 @@ private:
       prefixTraversal(node->right, result);
   }
 
-  void postfixTraversal(DLNode<T> *node, queue<T> *result) {
+  void postfixTraversal(DLNode<T> *node, Queue<T> *result) {
     if (node->left)
       postfixTraversal(node->left, result);
     if (node->right)
@@ -84,8 +84,8 @@ public:
     }
   }
 
-  queue<T> *traversal(Traversal type) {
-    queue<T> *result = new queue<T>();
+  Queue<T> *traversal(Traversal type) {
+    Queue<T> *result = new Queue<T>();
     if (root)
       switch (type) {
       case Prefix:
