@@ -61,21 +61,18 @@ inline void onInit() {
   path = new Stack<Folder *>();
   path->push(root);
 
-  root->addFolder(new Folder("hiii"));
-  root->addFolder(new Folder("an interesting name"));
-  root->addNote(new Note("cute note"));
-  root->addNote(new Note("ok note"));
-  root->addNote(new Note("secret note"));
-  root->addNote(new Note("interesting note"));
-  root->addNote(new Note("meh note"));
-  root->addNote(new Note("ugly note"));
-  root->addNote(new Note("a note"));
-  root->addNote(new Note("note"));
-  root->addNote(new Note("?? note"));
-  root->addNote(new Note("note..."));
-  root->addNote(new Note("note! >.<"));
-  root->addNote(new Note("extremelylongnamebecauseitisabsolutegarbage"));
-  breadcrumb = path->top()->getName();
+  root->add(new Folder("hiii"));
+  root->add(new Folder("an interesting name"));
+  root->add(new Folder("homework"));
+  root->add(new Note("cute note"));
+  root->add(new Note("ok note"));
+  root->add(new Note("secret note"));
+  root->add(new Note("interesting note"));
+  root->add(new Note("meh note"));
+  root->add(new Note("ugly note"));
+  root->add(new Note("note! >.<"));
+  root->add(new Note("extremelylongnamebecauseitisabsolutegarbage"));
+  breadcrumb = "Viewing: " + path->top()->getName();
   Window::setTitle(breadcrumb);
 }
 
@@ -95,7 +92,7 @@ inline void onRefresh() {
   }
 
   // All folders
-  for (int i = 0; i < path->top()->getFoldersCount(); i++) {
+  for (int i = 0; i < path->top()->foldersSize(); i++) {
     if (x + Window::getIconWidth() > Window::getWidth()) {
       y += Window::getIconHeight();
       x = 0;
@@ -106,13 +103,13 @@ inline void onRefresh() {
   }
 
   // All notes
-  for (int i = 0; i < path->top()->getNotesCount(); i++) {
+  for (int i = 0; i < path->top()->notesSize(); i++) {
     if (x + Window::getIconWidth() > Window::getWidth()) {
       y += Window::getIconHeight();
       x = 0;
     }
     drawItem(Icon::NOTE, path->top()->getChildNoteName(i), x, y,
-             selections->search(path->top()->getFoldersCount() + i));
+             selections->search(path->top()->foldersSize() + i));
     x += Window::getIconWidth();
   }
 }
@@ -133,7 +130,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
   if (button) {
     // Selectionner plusieurs fichiers
     if (ctrl) {
-      if (index <= path->top()->getSize() && index >= 0) {
+      if (index <= path->top()->size() && index >= 0) {
         if (selections->search(index)) {
           selections->remove(index);
         } else {
@@ -144,6 +141,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
     // AccÈder un fichier
     else {
       selections->empty();
+
       // Retourner en arriËre
       if (index == -1) {
         breadcrumb.erase(breadcrumb.length() - path->top()->getName().length());
@@ -154,7 +152,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
       }
 
       // AccÈder un dossier
-      else if (index < path->top()->getFoldersCount()) {
+      else if (index < path->top()->foldersSize()) {
         if (path->size() > 1) {
           breadcrumb.append("/");
         }
@@ -163,8 +161,8 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
       }
 
       // Modifier une note
-      else if (index < path->top()->getSize()) {
-        index -= path->top()->getFoldersCount();
+      else if (index < path->top()->size()) {
+        index -= path->top()->foldersSize();
         Window::setTitle("Editing " + path->top()->getChildNoteName(index));
         string content =
             Window::showTextField(path->top()->getChildNoteContent(index));
@@ -178,7 +176,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
   // Menu
   else {
     // Click droit dans le vide
-    if (index >= path->top()->getSize()) {
+    if (index >= path->top()->size()) {
       Window::showMenu(x, y,
                        Menu::NEW_FOLDER | Menu::NEW_NOTE | Menu::SELECT_ALL);
     }
@@ -191,10 +189,10 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
           }
           selections->add(index);
         }
-        if (index < path->top()->getFoldersCount()) {
+        if (index < path->top()->foldersSize()) {
           Window::showMenu(x, y, Menu::RENAME | Menu::DELETE);
         } else {
-          Window::showMenu(x, y, Menu::ENCODE | Menu::DELETE | Menu::RENAME);
+          Window::showMenu(x, y, Menu::ENCODE | Menu::DECODE | Menu::DELETE | Menu::RENAME);
         }
       }
     }
@@ -210,56 +208,58 @@ inline void onMenuClick(const unsigned int &menuItem) {
   int index = selections->top();
   switch (menuItem) {
   case Menu::NEW_FOLDER: {
-    // TODO : Cr√©er un nouveau dossier dans le dossier actuel
+    Window::setTitle("Creating folder");
     string name = Window::showTextField();
     if (name != "" && !path->top()->folderExists(name))
-      path->top()->addFolder(new Folder(name));
+      path->top()->add(new Folder(name));
+    Window::setTitle(breadcrumb);
     break;
   }
   case Menu::NEW_NOTE: {
+    Window::setTitle("Creating note");
     string name = Window::showTextField();
     if (name != "" && !path->top()->noteExists(name))
-      path->top()->addNote(new Note(name));
+      path->top()->add(new Note(name));
+    Window::setTitle(breadcrumb);
     break;
   }
   case Menu::RENAME: {
-    // TODO : Renommer le dossier ou la note
-    if (index < path->top()->getFoldersCount()) {
+    // Renommer un dossier
+    if (index < path->top()->foldersSize()) {
+      Window::setTitle("Renaming " + path->top()->getChildFolderName(index));
       string name =
           Window::showTextField(path->top()->getChildFolderName(index));
       if (name != "")
         path->top()->renameChildFolder(index, name);
-    } else {
-      index -= path->top()->getFoldersCount();
+    }
+    // Renommer une note
+    else {
+      index -= path->top()->foldersSize();
+      Window::setTitle("Renaming " + path->top()->getChildNoteName(index));
       string name = Window::showTextField(path->top()->getChildNoteName(index));
       if (name != "")
         path->top()->renameChildNote(index, name);
     }
     selections->empty();
+    Window::setTitle(breadcrumb);
     break;
   }
   case Menu::DELETE: {
-    // TODO : Supprimer le ou les dossiers, et tout ce qu'ils contiennent, et
-    // les notes s√©lectionn√©s
-
-    // ASK: multiple deletes
-    Queue<int> *traversal = selections->traversal(Traversal::Infix);
-    Stack<int> *toDelete = new Stack<int>;
+    Queue<int> *traversal = selections->traversal(Traversal::ReverseInfix);
 
     while (traversal->size()) {
-      toDelete->push(traversal->front());
-      traversal->pop();
-    }
-
-    while (toDelete->size()) {
-      index = toDelete->top();
-      if (index < path->top()->getFoldersCount()) {
+      index = traversal->front();
+      selections->remove(index);
+      // Supprimer un dossier
+      if (index < path->top()->foldersSize()) {
         path->top()->deleteChildFolder(index);
-      } else {
-        index -= path->top()->getFoldersCount();
+      }
+      // Supprimer une note
+      else {
+        index -= path->top()->foldersSize();
         path->top()->deleteChildNote(index);
       }
-      toDelete->pop();
+      traversal->pop();
     }
     break;
   }
@@ -273,7 +273,7 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
 
   case Menu::SELECT_ALL:
-    for (int i = 0; i < path->top()->getSize(); i++) {
+    for (int i = 0; i < path->top()->size(); i++) {
       selections->add(i);
     };
     break;
@@ -285,6 +285,7 @@ inline void onMenuClick(const unsigned int &menuItem) {
  */
 inline void onQuit() {
   // TODO : Lib√©ration
+  // FIX: breaks when you do smth retarded
   while (path->size()) {
     delete path->top();
     path->pop();

@@ -71,34 +71,15 @@ public:
     notes.clear();
   }
 
-  void addFolder(Folder *item) {
+  void add(Folder *item) {
     if (folderExists(item->name))
       return;
     folders.push_back(item);
     sortFolders(0, folders.size() - 1);
   }
-  void addFolder(string name) {
-    if (folderExists(name))
-      return;
-    folders.push_back(new Folder(name));
-    sortFolders(0, folders.size() - 1);
-  }
-
-  void addNote(Note *item) {
-    if (noteExists(item->getName()))
-      return;
-    notes.push_back(item);
-    sortNotes(0, notes.size() - 1);
-  }
-  void addNote(string name) {
-    if (noteExists(name))
-      return;
-    notes.push_back(new Note(name));
-    sortNotes(0, notes.size() - 1);
-  }
 
   string getName() { return name; }
-  int getSize() { return folders.size() + notes.size(); }
+  int size() { return folders.size() + notes.size(); }
   void rename(string name) { this->name = name; }
   bool folderExists(string name) {
     for (Folder *x : folders)
@@ -106,6 +87,15 @@ public:
         return true;
 
     return false;
+  }
+  int foldersSize() { return folders.size(); }
+  Folder *getChildFolder(size_t index) { return folders[index]; }
+  string getChildFolderName(size_t index) { return folders[index]->name; }
+  void renameChildFolder(size_t index, string name) {
+    if (folderExists(name))
+      return;
+    folders[index]->name = name;
+    sortFolders(0, folders.size() - 1);
   }
   void deleteChildFolder(int index) {
     delete folders[index];
@@ -120,17 +110,14 @@ public:
     return false;
   }
 
-  int getFoldersCount() { return folders.size(); }
-  Folder *getChildFolder(size_t index) { return folders[index]; }
-  string getChildFolderName(size_t index) { return folders[index]->getName(); }
-  void renameChildFolder(size_t index, string name) {
-    if (folderExists(name))
+  void add(Note *item) {
+    if (noteExists(item->getName()))
       return;
-    folders[index]->name = name;
-    sortFolders(0, folders.size() - 1);
+    notes.push_back(item);
+    sortNotes(0, notes.size() - 1);
   }
 
-  int getNotesCount() { return notes.size(); }
+  int notesSize() { return notes.size(); }
   string getChildNoteName(size_t index) { return notes[index]->getName(); }
   string getChildNoteContent(size_t index) {
     return notes[index]->getContent();
@@ -138,11 +125,11 @@ public:
   void renameChildNote(size_t index, string name) {
     if (noteExists(name))
       return;
-    notes[index]->setName(name);
+    notes[index]->rename(name);
     sortNotes(0, notes.size() - 1);
   }
   void editChildNote(size_t index, string content) {
-    notes[index]->setContent(content);
+    notes[index]->edit(content);
   }
   void deleteChildNote(int index) {
     delete notes[index];

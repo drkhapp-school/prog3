@@ -6,13 +6,13 @@
  * @date 2021-11-25
  */
 #include "DLNode.hpp"
+#include "Queue.hpp"
 #include <cstdlib>
 #include <iostream>
-#include "Queue.hpp"
 
 using namespace ::std;
 
-enum Traversal { Prefix, Infix, Postfix, Breathfirst };
+enum Traversal { Prefix, Infix, Postfix, Breathfirst, ReverseInfix };
 
 template <typename T> class BSTree {
 private:
@@ -25,6 +25,14 @@ private:
     result->push(node->data);
     if (node->right)
       infixTraversal(node->right, result);
+  }
+
+  void reverseInfixTraversal(DLNode<T> *node, Queue<T> *result) {
+    if (node->right)
+      reverseInfixTraversal(node->right, result);
+    result->push(node->data);
+    if (node->left)
+      reverseInfixTraversal(node->left, result);
   }
 
   void prefixTraversal(DLNode<T> *node, Queue<T> *result) {
@@ -99,6 +107,8 @@ public:
         break;
       case Breathfirst:
         break;
+      case ReverseInfix:
+        reverseInfixTraversal(root, result);
       }
     return result;
   }
