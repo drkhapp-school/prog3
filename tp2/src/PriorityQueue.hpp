@@ -13,9 +13,8 @@ public:
   }
 
   ~PriorityQueue() {
-    while (count) {
+    while (count)
       pop();
-    }
   }
 
   void push(T data, size_t priority) {
@@ -23,7 +22,7 @@ public:
       first = new PQNode<T>(priority, data);
     } else {
       PQNode<T> *runner = first;
-      while (runner->next != nullptr || runner->next->priority <= priority) {
+      while (runner->next != nullptr && runner->next->priority <= priority) {
         runner = runner->next;
       }
       runner->next = new PQNode<T>(priority, data, runner->next);
@@ -37,4 +36,7 @@ public:
     delete temp;
     count--;
   }
+
+  T front() { return first ? first->data : NULL; }
+  size_t size() { return count; }
 };
