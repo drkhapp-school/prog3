@@ -10,9 +10,10 @@
 #include "Stack.hpp"
 //#include "AVLTree"
 #include "Folder.hpp"
+#include "Huffman.hpp"
 #include "Window.hpp"
 
-using namespace std;
+using std::string;
 
 inline Stack<Folder *> *path;
 inline BSTree<int> *selections;
@@ -192,7 +193,8 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
         if (index < path->top()->foldersSize()) {
           Window::showMenu(x, y, Menu::RENAME | Menu::DELETE);
         } else {
-          Window::showMenu(x, y, Menu::ENCODE | Menu::DECODE | Menu::DELETE | Menu::RENAME);
+          Window::showMenu(
+              x, y, Menu::ENCODE | Menu::DECODE | Menu::DELETE | Menu::RENAME);
         }
       }
     }
@@ -266,6 +268,10 @@ inline void onMenuClick(const unsigned int &menuItem) {
 
   case Menu::ENCODE:
     // TODO : Encoder la note avec la méthode de Huffman
+    if (path->top()->getChildNoteContent(index)[0] == 1) {
+      path->top()->editChildNote(
+          index, encode(path->top()->getChildNoteContent(index)));
+    }
     break;
 
   case Menu::DECODE:

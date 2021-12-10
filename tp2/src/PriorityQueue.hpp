@@ -21,11 +21,15 @@ public:
     if (!first) {
       first = new PQNode<T>(priority, data);
     } else {
-      PQNode<T> *runner = first;
-      while (runner->next != nullptr && runner->next->priority <= priority) {
-        runner = runner->next;
+      if (first->priority > priority) {
+        first = new PQNode<T>(priority, data, first);
+      } else {
+        PQNode<T> *runner = first;
+        while (runner->next != nullptr && runner->next->priority <= priority) {
+          runner = runner->next;
+        }
+        runner->next = new PQNode<T>(priority, data, runner->next);
       }
-      runner->next = new PQNode<T>(priority, data, runner->next);
     }
     count++;
   }
@@ -38,5 +42,6 @@ public:
   }
 
   T front() { return first ? first->data : NULL; }
+  size_t priority() { return first ? first->priority : NULL; }
   size_t size() { return count; }
 };
