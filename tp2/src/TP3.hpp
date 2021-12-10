@@ -138,11 +138,11 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
         }
       }
     }
-    // Acc�der un fichier
+    // Accéder un fichier
     else {
       selections->empty();
 
-      // Retourner en arri�re
+      // Retourner en arrière
       if (index == -1) {
         breadcrumb.erase(breadcrumb.length() - path->top()->getName().length());
         if (path->size() > 2) {
@@ -151,7 +151,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
         path->pop();
       }
 
-      // Acc�der un dossier
+      // Accéder un dossier
       else if (index < path->top()->foldersSize()) {
         if (path->size() > 1) {
           breadcrumb.append("/");
@@ -202,7 +202,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
 /**
  * @brief Automatiquement appelée lors d'un click de souris dans le menu
  * contextuel
- * @param menu Élément de menu clické
+ * @param menu élément de menu clické
  */
 inline void onMenuClick(const unsigned int &menuItem) {
   int index = selections->top();

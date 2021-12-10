@@ -57,7 +57,7 @@ private:
   }
 
 public:
-  // TODO : Implémentation des méthodes nécessaires
+  // TODO : ImplÃ©mentation des mÃ©thodes nÃ©cessaires
   Folder(string name) { this->name = name; }
 
   ~Folder() {
