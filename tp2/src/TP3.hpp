@@ -181,19 +181,23 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
                        Menu::NEW_FOLDER | Menu::NEW_NOTE | Menu::SELECT_ALL);
     }
 
-    else {
-      if (index != -1) {
-        if (!selections->search(index)) {
-          if (!ctrl) {
-            selections->empty();
-          }
-          selections->add(index);
-        }
-        if (index < path->top()->foldersSize()) {
-          Window::showMenu(x, y, Menu::RENAME | Menu::DELETE);
-        } else {
-          Window::showMenu(x, y, Menu::ENCODE | Menu::DECODE | Menu::DELETE | Menu::RENAME);
-        }
+    else if (index != -1) {
+      /* if (!selections->search(index)) { */
+      /*   if (!ctrl) { */
+      /*     selections->empty(); */
+      /*   } */
+      /*   selections->add(index); */
+      /* } */
+
+      // Click droit sur un dossier
+      if (index < path->top()->foldersSize()) {
+        Window::showMenu(x, y, Menu::RENAME | Menu::DELETE | Menu::SELECT_ALL);
+      }
+
+      // Click droit sur une note
+      else {
+        Window::showMenu(
+            x, y, Menu::ENCODE | Menu::DECODE | Menu::DELETE | Menu::RENAME | Menu::SELECT_ALL);
       }
     }
   }
