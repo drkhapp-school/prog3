@@ -10,9 +10,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace ::std;
-
-enum Traversal { Prefix, Infix, Postfix, Breathfirst, ReverseInfix };
+enum Traversal { Prefix, Infix, Postfix, ReverseInfix };
 
 template <typename T> class BSTree {
 private:
@@ -51,21 +49,17 @@ private:
     result->push(node->data);
   }
 
-  void findPath(DLNode<T> *node, T data) {
+  void add(DLNode<T> *node, T data) {
     if (data < node->data) {
       if (node->left)
-        findPath(node->left, data);
-      else {
+        add(node->left, data);
+      else
         node->left = new DLNode<T>(data);
-        count++;
-      }
     } else if (data > node->data) {
       if (node->right)
-        findPath(node->right, data);
-      else {
+        add(node->right, data);
+      else
         node->right = new DLNode<T>(data);
-        count++;
-      }
     }
   }
 
@@ -75,21 +69,20 @@ public:
     count = 0;
   }
 
-  ~BSTree() { empty(); }
+  ~BSTree() { clear(); }
 
-  void empty() {
-    while (count) {
+  void clear() {
+    while (count)
       remove(root->data);
-    }
   }
 
   void add(T data) {
-    if (root) {
-      findPath(root, data);
-    } else {
+    if (root)
+      add(root, data);
+    else
       root = new DLNode<T>(data);
-      count++;
-    }
+
+    count++;
   }
 
   Queue<T> *traversal(Traversal type) {
@@ -105,8 +98,6 @@ public:
       case Postfix:
         postfixTraversal(root, result);
         break;
-      case Breathfirst:
-        break;
       case ReverseInfix:
         reverseInfixTraversal(root, result);
       }
@@ -114,97 +105,91 @@ public:
   }
 
   void remove(T data) {
+    // Aucune donnée
     if (!root)
       return;
 
     enum Path { Left, Right, Root };
-    DLNode<T> *leaf = root;
     DLNode<T> *parent = root;
-    bool found = false;
+    DLNode<T> *leaf = nullptr;
     Path side;
 
-    while (!found) {
+    // Trouver la feuille à supprimer
+    while (!leaf) {
       if (data < parent->data) {
+        // Donnée introuvable
         if (!parent->left)
           return;
+
+        // Donnée à gauche
         if (parent->left->data == data) {
           side = Left;
           leaf = parent->left;
-          found = true;
         } else
           parent = parent->left;
       } else if (data > parent->data) {
+        // Donnée introuvable
         if (!parent->right)
           return;
+
+        // Donnée à droite
         if (parent->right->data == data) {
           side = Right;
           leaf = parent->right;
-          found = true;
         } else
           parent = parent->right;
-      } else {
+      }
+      // Donnée à la racine
+      else {
         side = Root;
-        found = true;
         leaf = root;
       }
     }
+
+    // 2 feuilles
     if (leaf->left && leaf->right) {
-      DLNode<T> *tempParent = leaf->left;
-      while (tempParent->right && tempParent->right->right) {
-        tempParent = tempParent->right;
-      }
-      if (tempParent->right) {
-        leaf->data = tempParent->right->data;
-        if (tempParent->right->left) {
-          DLNode<T> *toDelete = tempParent->right;
-          tempParent->right = tempParent->right->left;
-          delete toDelete;
-        } else {
-          delete tempParent->right;
-          tempParent->right = nullptr;
-        }
-      } else {
-        leaf->data = tempParent->data;
-        leaf->left = tempParent->left;
-        delete tempParent;
-      }
-    } else {
-      switch (side) {
-      case Left:
-        if (!leaf->left && !leaf->right) {
-          parent->left = nullptr;
-        } else {
-          parent->left = leaf->left ? leaf->left : leaf->right;
-        }
-        delete leaf;
-        break;
+      DLNode<T> *child = leaf->left;
+      T newData;
 
-      case Right:
-        if (!leaf->left && !leaf->right) {
-          parent->right = nullptr;
-        } else {
-          parent->right = leaf->left ? leaf->left : leaf->right;
-        }
-        delete leaf;
-        break;
+      while (child->right)
+        child = child->right;
 
-      case Root:
-        if (!root->left && !root->right) {
-          delete root;
-          root = nullptr;
-        } else {
-          DLNode<T> *toDelete = root;
-          if (root->left) {
-            root = root->left;
-          } else {
-            root = root->right;
-          }
-          delete toDelete;
-        }
-        break;
-      }
+      newData = child->data;
+      remove(newData);
+      leaf->data = newData;
     }
-    count--;
+
+    // Zéro ou une feuille
+    else {
+      switch (side) {
+      // Cas où la feuille est à gauche
+      case Left:
+        if (!leaf->left && !leaf->right)
+          parent->left = nullptr;
+        else
+          parent->left = leaf->left ?: leaf->right;
+        break;
+
+      // Cas où la feuille est à droite
+      case Right:
+        if (!leaf->left && !leaf->right)
+          parent->right = nullptr;
+        else
+          parent->right = leaf->left ?: leaf->right;
+        break;
+
+      // Cas où la feuille est la racine
+      case Root:
+        if (!leaf->left && !leaf->right)
+          root = nullptr;
+        else
+          root = leaf->left ?: leaf->right;
+        break;
+      }
+
+      delete leaf;
+      count--;
+    }
   }
 
   bool search(T data) {
