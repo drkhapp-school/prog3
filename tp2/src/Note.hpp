@@ -15,7 +15,7 @@ private:
   string content;
 
 public:
-  // TODO : Implémentation des méthodes nécessaires
+  // TODO : ImplÃ©mentation des mÃ©thodes nÃ©cessaires
   Note(string name, string content = "") {
     this->name = name;
     this->content = content;    

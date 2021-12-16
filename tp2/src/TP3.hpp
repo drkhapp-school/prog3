@@ -45,10 +45,7 @@ inline int getIndex(const int &x, const int &y) {
               (y / Window::getIconHeight() * Window::getWidth() /
                Window::getIconWidth());
 
-  if (path->size() > 1)
-    index--;
-
-  return index;
+  return path->size() > 1 ? --index : index;
 }
 
 /**
@@ -138,35 +135,39 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
         }
       }
     }
-    // Accéder un fichier
+    // AccÃ©der un fichier
     else {
-      selections->empty();
+      selections->clear();
 
-      // Retourner en arrière
+      // Retourner en arriÃ¨re
       if (index == -1) {
         breadcrumb.erase(breadcrumb.length() - path->top()->getName().length());
-        if (path->size() > 2) {
+        if (path->size() > 2)
           breadcrumb.erase(breadcrumb.length() - 1);
-        }
+
         path->pop();
       }
 
-      // Accéder un dossier
+      // AccÃ©der un dossier
       else if (index < path->top()->foldersSize()) {
-        if (path->size() > 1) {
-          breadcrumb.append("/");
-        }
         path->push(path->top()->getChildFolder(index));
+
+        if (path->size() > 1)
+          breadcrumb.append("/");
         breadcrumb.append(path->top()->getName());
       }
 
       // Modifier une note
       else if (index < path->top()->size()) {
+        selections->add(index);
         index -= path->top()->foldersSize();
+
         Window::setTitle("Editing " + path->top()->getChildNoteName(index));
         string content =
             Window::showTextField(path->top()->getChildNoteContent(index));
+
         path->top()->editChildNote(index, content);
+        selections->clear();
       }
 
       Window::setTitle(breadcrumb);
@@ -182,23 +183,13 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
     }
 
     else if (index != -1) {
-      /* if (!selections->search(index)) { */
-      /*   if (!ctrl) { */
-      /*     selections->empty(); */
-      /*   } */
-      /*   selections->add(index); */
-      /* } */
-
       // Click droit sur un dossier
-      if (index < path->top()->foldersSize()) {
+      if (index < path->top()->foldersSize())
         Window::showMenu(x, y, Menu::RENAME | Menu::DELETE | Menu::SELECT_ALL);
-      }
 
       // Click droit sur une note
-      else {
-        Window::showMenu(
-            x, y, Menu::ENCODE | Menu::DECODE | Menu::DELETE | Menu::RENAME | Menu::SELECT_ALL);
-      }
+      else
+        Window::showMenu(x, y, Menu::DELETE | Menu::RENAME | Menu::SELECT_ALL);
     }
   }
 }
@@ -213,17 +204,21 @@ inline void onMenuClick(const unsigned int &menuItem) {
   switch (menuItem) {
   case Menu::NEW_FOLDER: {
     Window::setTitle("Creating folder");
+    
     string name = Window::showTextField();
     if (name != "" && !path->top()->folderExists(name))
       path->top()->add(new Folder(name));
+
     Window::setTitle(breadcrumb);
     break;
   }
   case Menu::NEW_NOTE: {
     Window::setTitle("Creating note");
+    
     string name = Window::showTextField();
     if (name != "" && !path->top()->noteExists(name))
       path->top()->add(new Note(name));
+    
     Window::setTitle(breadcrumb);
     break;
   }
@@ -231,6 +226,7 @@ inline void onMenuClick(const unsigned int &menuItem) {
     // Renommer un dossier
     if (index < path->top()->foldersSize()) {
       Window::setTitle("Renaming " + path->top()->getChildFolderName(index));
+      
       string name =
           Window::showTextField(path->top()->getChildFolderName(index));
       if (name != "")
@@ -240,11 +236,13 @@ inline void onMenuClick(const unsigned int &menuItem) {
     else {
       index -= path->top()->foldersSize();
       Window::setTitle("Renaming " + path->top()->getChildNoteName(index));
+      
       string name = Window::showTextField(path->top()->getChildNoteName(index));
       if (name != "")
         path->top()->renameChildNote(index, name);
     }
-    selections->empty();
+    
+    selections->clear();
     Window::setTitle(breadcrumb);
     break;
   }
@@ -277,9 +275,8 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
 
   case Menu::SELECT_ALL:
-    for (int i = 0; i < path->top()->size(); i++) {
+    for (int i = 0; i < path->top()->size(); i++) 
       selections->add(i);
-    };
     break;
   }
 }
