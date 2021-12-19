@@ -75,13 +75,6 @@ public:
 
   string getName() { return name; }
 
-  void rename(string name) {
-    if (folderExists(name))
-      return;
-    this->name = name;
-    sortFolders(0, folders.size() - 1);
-  }
-
   // Méthodes pour les dossiers enfants
 
   void add(Folder *item) {
@@ -105,7 +98,10 @@ public:
   string getChildFolderName(size_t index) { return folders[index]->name; }
 
   void renameChildFolder(size_t index, string name) {
-    folders[index]->rename(name);
+    if (folderExists(name))
+      return;
+    folders[index]->name = name;
+    sortFolders(0, folders.size() - 1);
   }
 
   void deleteChildFolder(int index) {

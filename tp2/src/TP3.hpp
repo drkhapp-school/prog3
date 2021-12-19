@@ -236,10 +236,6 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
   }
   case Menu::RENAME: {
-    // Le renommage marche juste sur le premier fichier selectionné.
-    if (!selections->size())
-      return;
-
     int index = selections->top();
 
     // Renommer un dossier
@@ -266,10 +262,6 @@ inline void onMenuClick(const unsigned int &menuItem) {
     break;
   }
   case Menu::DELETE: {
-    // Le renommage marche juste sur le premier fichier selectionné.
-    if (!selections->size())
-      return;
-
     int index = selections->top();
     Queue<int> *traversal = selections->traversal(Traversal::ReverseInfix);
 
