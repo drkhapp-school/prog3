@@ -1,9 +1,9 @@
 /**
  * @file Queue.hpp
  * @brief File dynamique.
- * @author 1927230 - Jean-Philippe 
+ * @author 1927230 - Jean-Philippe
  * @version 1.0.0
- * @date 2021-11-25
+ * @date 2021-12-21
  */
 #pragma once
 #include "SLNode.hpp"
@@ -53,13 +53,5 @@ public:
 
   T back() { return last ? last->data : NULL; }
 
-  size_t size() {
-    size_t count = 0;
-    SLNode<T> *runner = first;
-    while (runner) {
-      runner = runner->next;
-      count++;
-    }
-    return count;
-  }
+  size_t size() { return count; }
 };

@@ -102,13 +102,6 @@ public:
   static void showMenu(const int &x, const int &y,
                        const unsigned int &enables = 0);
 
-  /**
-   * @brief
-   *
-   * @param text
-   *
-   * @return
-   */
   static string showTextField(const string &text = "");
 
 private:

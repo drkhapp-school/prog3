@@ -3,12 +3,13 @@
  * @brief Dossier contenant des fichiers et dossiers enfants.
  * @author 1927230 - Jean-Philippe
  * @version 1.0.0
- * @date 2021-11-25
+ * @date 2021-12-21
  */
 #include "Note.hpp"
 #include <vector>
 
-using namespace std;
+using std::swap;
+using std::vector;
 
 class Folder {
 private:
@@ -57,19 +58,31 @@ private:
   }
 
 public:
-  // TODO : Implémentation des méthodes nécessaires
   Folder(string name) { this->name = name; }
 
   ~Folder() {
-    for (Folder *child : folders) {
+    for (Folder *child : folders)
       delete child;
-    }
-    for (Note *child : notes) {
+
+    for (Note *child : notes)
       delete child;
-    }
+
     folders.clear();
     notes.clear();
   }
+
+  int size() { return folders.size() + notes.size(); }
+
+  string getName() { return name; }
+
+  void rename(string name) {
+    if (folderExists(name))
+      return;
+    this->name = name;
+    sortFolders(0, folders.size() - 1);
+  }
+
+  // Méthodes pour les dossiers enfants
 
   void add(Folder *item) {
     if (folderExists(item->name))
@@ -78,37 +91,29 @@ public:
     sortFolders(0, folders.size() - 1);
   }
 
-  string getName() { return name; }
-  int size() { return folders.size() + notes.size(); }
-  void rename(string name) { this->name = name; }
   bool folderExists(string name) {
     for (Folder *x : folders)
       if (x->name == name)
         return true;
-
     return false;
   }
+
   int foldersSize() { return folders.size(); }
+
   Folder *getChildFolder(size_t index) { return folders[index]; }
+
   string getChildFolderName(size_t index) { return folders[index]->name; }
+
   void renameChildFolder(size_t index, string name) {
-    if (folderExists(name))
-      return;
-    folders[index]->name = name;
-    sortFolders(0, folders.size() - 1);
+    folders[index]->rename(name);
   }
+
   void deleteChildFolder(int index) {
     delete folders[index];
     folders.erase(folders.begin() + index);
   }
 
-  bool noteExists(string name) {
-    for (Note *x : notes)
-      if (x->getName() == name)
-        return true;
-
-    return false;
-  }
+  // Méthodes pour les notes enfants
 
   void add(Note *item) {
     if (noteExists(item->getName()))
@@ -117,20 +122,32 @@ public:
     sortNotes(0, notes.size() - 1);
   }
 
-  int notesSize() { return notes.size(); }
-  string getChildNoteName(size_t index) { return notes[index]->getName(); }
-  string getChildNoteContent(size_t index) {
-    return notes[index]->getContent();
+  bool noteExists(string name) {
+    for (Note *x : notes)
+      if (x->getName() == name)
+        return true;
+    return false;
   }
+
+  int notesSize() { return notes.size(); }
+
+  string getChildNoteName(size_t index) { return notes[index]->getName(); }
+
   void renameChildNote(size_t index, string name) {
     if (noteExists(name))
       return;
     notes[index]->rename(name);
     sortNotes(0, notes.size() - 1);
   }
+
+  string getChildNoteContent(size_t index) {
+    return notes[index]->getContent();
+  }
+
   void editChildNote(size_t index, string content) {
     notes[index]->edit(content);
   }
+
   void deleteChildNote(int index) {
     delete notes[index];
     notes.erase(notes.begin() + index);
