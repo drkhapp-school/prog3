@@ -279,6 +279,7 @@ inline void onMenuClick(const unsigned int &menuItem) {
       }
       traversal->pop();
     }
+    delete traversal;
     break;
   }
 
