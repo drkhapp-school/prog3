@@ -15,9 +15,9 @@ using std::string;
 
 // La raison pourquoi je mets inline est dû à mon compilateur qui donne des
 // avertissements, car on est dans un header.
-inline Stack<Folder *> *path;
-inline BSTree<int> *selections;
-inline string breadcrumb;
+Stack<Folder *> *path;
+BSTree<int> *selections;
+string breadcrumb;
 
 /**
  * @brief Affichage d'un icône avec un nom dans la fenêtre
@@ -33,11 +33,11 @@ inline void drawItem(Icon icon, string name, int x, int y, bool selected = false
         while (Window::getStringWidth(name + "...") > Window::getIconWidth())
             name.pop_back();
 
-        name += "...";
+        name.append("...");
     }
 
     Window::drawIcon(icon, x, y, selected);
-    Window::drawString(name, (Window::getIconWidth() - Window::getStringWidth(name)) / 2 + x, y + (Window::getIconHeight() * 0.75));
+    Window::drawString(name, (Window::getIconWidth() - Window::getStringWidth(name)) / 2 + x, y + (Window::getIconHeight() - 30));
 }
 
 /**
@@ -99,6 +99,7 @@ inline void onRefresh() {
             y += Window::getIconHeight();
             x = 0;
         }
+
         drawItem(Icon::FOLDER, path->top()->getChildFolder(i)->getName(), x, y,
                  selections->search(i));
         x += Window::getIconWidth();
@@ -110,6 +111,7 @@ inline void onRefresh() {
             y += Window::getIconHeight();
             x = 0;
         }
+
         drawItem(Icon::NOTE, path->top()->getChildNoteName(i), x, y,
                  selections->search(i + path->top()->foldersSize()));
         x += Window::getIconWidth();
@@ -177,24 +179,31 @@ inline void onWindowClick(const int &x, const int &y, const bool &button, const 
     }
 
     // Menu contextuelle
-    else {
+    else if (index != -1) {
+        unsigned int enables = 0;
         // Click droit dans le vide
         if (index >= path->top()->size()) {
-            Window::showMenu(x, y, Menu::NEW_FOLDER | Menu::NEW_NOTE | Menu::SELECT_ALL);
+            selections->clear();
+            enables |= Menu::NEW_NOTE | Menu::NEW_FOLDER;
         }
 
-        else if (index != -1) {
-            // Click droit sur un dossier ou une note
+        // Click droit sur un dossier ou une note
+        else {
             // Comme je n'ai pas coder l'encodage, l'option n'est pas disponible.
-            if (ctrl) {
-                selections->add(index);
-                Window::showMenu(x, y, Menu::DELETE | Menu::SELECT_ALL);
-            } else {
+            if (!ctrl && selections->size() == 1)
                 selections->clear();
-                selections->add(index);
-                Window::showMenu(x, y, Menu::RENAME | Menu::DELETE | Menu::SELECT_ALL);
-            }
+            selections->add(index);
+
+            enables |= Menu::DELETE;
+
+            if (selections->size() == 1)
+                enables |= Menu::RENAME;
         }
+
+        if (selections->size() != path->top()->size())
+            enables |= Menu::SELECT_ALL;
+
+        Window::showMenu(x, y, enables);
     }
 }
 
@@ -210,23 +219,25 @@ inline void onMenuClick(const unsigned int &menuItem) {
             Window::setTitle("Creating folder");
 
             string name = Window::showTextField();
-            if (!name.empty() && !path->top()->folderExists(name))
+            if (!name.empty())
                 path->top()->add(new Folder(name));
 
             Window::setTitle(breadcrumb);
             break;
         }
+
         case Menu::NEW_NOTE: {
             selections->clear();
             Window::setTitle("Creating note");
 
             string name = Window::showTextField();
-            if (!name.empty() && !path->top()->noteExists(name))
+            if (!name.empty())
                 path->top()->add(new Note(name));
 
             Window::setTitle(breadcrumb);
             break;
         }
+
         case Menu::RENAME: {
             int index = selections->top();
 
@@ -253,6 +264,7 @@ inline void onMenuClick(const unsigned int &menuItem) {
             Window::setTitle(breadcrumb);
             break;
         }
+
         case Menu::DELETE: {
             int index;
             Queue<int> *traversal = selections->traversal(Traversal::ReverseInfix);

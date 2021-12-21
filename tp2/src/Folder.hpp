@@ -71,7 +71,7 @@ public:
         notes.clear();
     }
 
-    int size() { return folders.size() + notes.size(); }
+    size_t size() { return folders.size() + notes.size(); }
 
     string getName() { return name; }
 
@@ -126,9 +126,9 @@ public:
         sortNotes(0, notes.size() - 1);
     }
 
-    bool noteExists(string name) {
+    bool noteExists(string newName) {
         for (Note *x : notes)
-            if (x->getName() == name)
+            if (x->getName() == newName)
                 return true;
         return false;
     }
@@ -141,10 +141,10 @@ public:
         return notes[index]->getName();
     }
 
-    void renameChildNote(size_t index, string name) {
-        if (noteExists(name))
+    void renameChildNote(size_t index, string newName) {
+        if (noteExists(newName))
             return;
-        notes[index]->rename(name);
+        notes[index]->rename(newName);
         sortNotes(0, notes.size() - 1);
     }
 

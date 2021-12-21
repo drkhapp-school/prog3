@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.11)
+SET(CMAKE_CXX_FLAGS "-ggdb -Wall")
 SET(CMAKE_CXX_STANDARD_REQUIRED 17)
 project(tp2)
 

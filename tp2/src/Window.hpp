@@ -42,4 +42,3 @@ private:
     SDL_Renderer* sdlRenderer;
     SDL_Window* sdlWindow;
 };
-

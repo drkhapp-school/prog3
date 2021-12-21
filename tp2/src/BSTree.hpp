@@ -9,10 +9,7 @@
 #include "DLNode.hpp"
 #include "Queue.hpp"
 
-enum Traversal { Prefix,
-                 Infix,
-                 Postfix,
-                 ReverseInfix };
+enum Traversal { Prefix, Infix, Postfix, ReverseInfix };
 
 template<typename T>
 class BSTree {
@@ -70,6 +67,14 @@ private:
         }
     }
 
+    bool search(T data, DLNode<T>* node) {
+        if (!node) return false;
+        if (data < node->data) return search(data, node->left);
+        if (data > node->data) return search(data, node->right);
+        return true;
+    }
+
+
 public:
     BSTree() {
         root = nullptr;
@@ -116,9 +121,7 @@ public:
         if (!root)
             return;
 
-        enum Path { Left,
-                    Right,
-                    Root };
+        enum Path { Left, Right, Root };
         DLNode<T> *parent = root;
         DLNode<T> *node = nullptr;
         Path side;
@@ -153,7 +156,7 @@ public:
             }
         }
 
-        // 2 feuilles
+        // Deux feuilles
         if (node->left && node->right) {
             DLNode<T> *child = node->left;
             T newData;
@@ -200,17 +203,10 @@ public:
     }
 
     bool search(T data) {
-        DLNode<T> *runner = root;
-        while (runner) {
-            if (data < runner->data)
-                runner = runner->left;
-            else if (data > runner->data)
-                runner = runner->right;
-            else
-                return true;
-        }
-        return false;
+        return search(data, root);
     }
+
+    size_t size() { return count; }
 
     T top() { return root ? root->data : NULL; }
 };
