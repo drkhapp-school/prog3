@@ -12,19 +12,19 @@ using std::string;
 
 class Note {
 private:
-    string name;
-    string content;
+  string name;
+  string content;
 
 public:
-    Note(string name, string content = "") {
-        this->name = name;
-        this->content = content;
-    }
+  Note(string name, string content = "") {
+    this->name = name;
+    this->content = content;
+  }
 
-    ~Note() {}
+  ~Note() {}
 
-    void rename(string name) { this->name = name; }
-    void edit(string content) { this->content = content; }
-    string getName() { return name; }
-    string getContent() { return content; }
+  void rename(string name) { this->name = name; }
+  void edit(string content) { this->content = content; }
+  string getName() { return name; }
+  string getContent() { return content; }
 };

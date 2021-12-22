@@ -1,8 +1,7 @@
-#include "bonus/Huffman.hpp"
+#include "TP3.hpp" 
 
 int main(int argc, char *argv[]) {
-   // return Window::open(onInit, onMenuClick, onRefresh, onWindowClick, onQuit);
+  return Window::open(onInit, onMenuClick, onRefresh, onWindowClick, onQuit);
 
-   string cute = encode("test string");
-   return 0;
+  return 0;
 }
