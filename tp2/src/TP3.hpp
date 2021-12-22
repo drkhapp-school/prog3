@@ -9,7 +9,6 @@
 #include "Folder.hpp"
 #include "Queue.hpp"
 #include "Stack.hpp"
-#include "Huffman.hpp"
 #include "Window.hpp"
 
 using std::string;
@@ -217,7 +216,7 @@ inline void onWindowClick(const int &x, const int &y, const bool &button,
 /**
  * @brief Automatiquement appelée lors d'un click de souris dans le menu
  * contextuel
- * @param menu élément de menu clické
+ * @param menu Élément de menu clické
  */
 inline void onMenuClick(const unsigned int &menuItem) {
   switch (menuItem) {

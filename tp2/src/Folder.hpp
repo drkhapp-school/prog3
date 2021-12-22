@@ -7,6 +7,7 @@
  */
 #include "Note.hpp"
 #include <vector>
+#pragma once
 
 using std::swap;
 using std::vector;

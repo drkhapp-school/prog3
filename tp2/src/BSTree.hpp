@@ -5,9 +5,9 @@
  * @version 1.0.0
  * @date 2021-12-21
  */
-#pragma once
 #include "DLNode.hpp"
 #include "Queue.hpp"
+#pragma once
 
 enum Traversal { Prefix, Infix, Postfix, ReverseInfix };
 
