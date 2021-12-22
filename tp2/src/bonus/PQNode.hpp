@@ -7,6 +7,7 @@
  */
 #include <cstddef>
 #pragma once
+
 template <typename T> class PQNode {
 public:
   size_t priority;
