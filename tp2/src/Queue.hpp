@@ -51,5 +51,7 @@ public:
 
   T front() { return first ? first->data : NULL; }
 
+  T back() { return last ? last->data : NULL; }
+
   size_t size() { return count; }
 };
