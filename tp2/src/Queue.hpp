@@ -5,9 +5,9 @@
  * @version 1.0.0
  * @date 2021-11-25
  */
-#pragma once
 #include "SLNode.hpp"
 #include <cstdlib>
+#pragma once
 
 template <typename T> class Queue {
 private:

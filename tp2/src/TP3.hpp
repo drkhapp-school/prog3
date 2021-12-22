@@ -9,9 +9,6 @@
 #include "Folder.hpp"
 #include "Queue.hpp"
 #include "Stack.hpp"
-//#include "AVLTree"
-#include "Folder.hpp"
-#include "Huffman.hpp"
 #include "Window.hpp"
 
 using std::string;

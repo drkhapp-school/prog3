@@ -6,6 +6,7 @@
  * @date 2021-12-21
  */
 #include <string>
+#pragma once
 
 using std::string;
 
