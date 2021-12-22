@@ -9,48 +9,47 @@
 #include "SLNode.hpp"
 #include <cstdlib>
 
-template<typename T>
-class Queue {
+template <typename T> class Queue {
 private:
-    SLNode<T> *first;
-    SLNode<T> *last;
-    size_t count;
+  SLNode<T> *first;
+  SLNode<T> *last;
+  size_t count;
 
 public:
-    Queue() {
-        first = nullptr;
-        last = nullptr;
-        count = 0;
+  Queue() {
+    first = nullptr;
+    last = nullptr;
+    count = 0;
+  }
+
+  ~Queue() {
+    while (first)
+      pop();
+  }
+
+  void push(T data) {
+    if (!last) {
+      last = new SLNode<T>(data);
+      first = last;
+    } else {
+      last->next = new SLNode<T>(data);
+      last = last->next;
     }
+    count++;
+  }
 
-    ~Queue() {
-        while (first)
-            pop();
-    }
+  void pop() {
+    SLNode<T> *temp = first;
+    first = first->next;
+    delete temp;
 
-    void push(T data) {
-        if (!last) {
-            last = new SLNode<T>(data);
-            first = last;
-        } else {
-            last->next = new SLNode<T>(data);
-            last = last->next;
-        }
-        count++;
-    }
+    if (!first)
+      last = nullptr;
 
-    void pop() {
-        SLNode<T> *temp = first;
-        first = first->next;
-        delete temp;
+    count--;
+  }
 
-        if (!first)
-            last = nullptr;
+  T front() { return first ? first->data : NULL; }
 
-        count--;
-    }
-
-    T front() { return first ? first->data : NULL; }
-
-    size_t size() { return count; }
+  size_t size() { return count; }
 };

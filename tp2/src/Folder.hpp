@@ -13,151 +13,141 @@ using std::vector;
 
 class Folder {
 private:
-    string name;
-    vector<Folder *> folders;
-    vector<Note *> notes;
+  string name;
+  vector<Folder *> folders;
+  vector<Note *> notes;
 
-    void sortFolders(int min, int max) {
-        int left = min;
-        int right = max;
-        int pivot = left;
+  void sortFolders(int min, int max) {
+    int left = min;
+    int right = max;
+    int pivot = left;
 
-        while (left != right) {
-            if (folders[left]->getName() > folders[right]->getName()) {
-                swap(folders[left], folders[right]);
-                pivot = left + right - pivot;
-            }
+    while (left != right) {
+      if (folders[left]->getName() > folders[right]->getName()) {
+        swap(folders[left], folders[right]);
+        pivot = left + right - pivot;
+      }
 
-            pivot == left ? right-- : left++;
-        }
-
-        if (min < pivot - 1)
-            sortFolders(min, pivot - 1);
-        if (max > pivot + 1)
-            sortFolders(pivot + 1, max);
+      pivot == left ? right-- : left++;
     }
 
-    void sortNotes(int min, int max) {
-        int left = min;
-        int right = max;
-        int pivot = left;
+    if (min < pivot - 1)
+      sortFolders(min, pivot - 1);
+    if (max > pivot + 1)
+      sortFolders(pivot + 1, max);
+  }
 
-        while (left != right) {
-            if (notes[left]->getName() > notes[right]->getName()) {
-                swap(notes[left], notes[right]);
-                pivot = left + right - pivot;
-            }
+  void sortNotes(int min, int max) {
+    int left = min;
+    int right = max;
+    int pivot = left;
 
-            pivot == left ? right-- : left++;
-        }
+    while (left != right) {
+      if (notes[left]->getName() > notes[right]->getName()) {
+        swap(notes[left], notes[right]);
+        pivot = left + right - pivot;
+      }
 
-        if (min < pivot - 1)
-            sortNotes(min, pivot - 1);
-        if (max > pivot + 1)
-            sortNotes(pivot + 1, max);
+      pivot == left ? right-- : left++;
     }
+
+    if (min < pivot - 1)
+      sortNotes(min, pivot - 1);
+    if (max > pivot + 1)
+      sortNotes(pivot + 1, max);
+  }
 
 public:
-    Folder(string name) { this->name = name; }
+  Folder(string name) { this->name = name; }
 
-    ~Folder() {
-        for (Folder *child : folders)
-            delete child;
+  ~Folder() {
+    for (Folder *child : folders)
+      delete child;
 
-        for (Note *child : notes)
-            delete child;
+    for (Note *child : notes)
+      delete child;
 
-        folders.clear();
-        notes.clear();
-    }
+    folders.clear();
+    notes.clear();
+  }
 
-    size_t size() { return folders.size() + notes.size(); }
+  size_t size() { return folders.size() + notes.size(); }
 
-    string getName() { return name; }
+  string getName() { return name; }
 
-    // Méthodes pour les dossiers enfants
+  // Méthodes pour les dossiers enfants
 
-    void add(Folder *item) {
-        if (folderExists(item->name))
-            return;
+  void add(Folder *item) {
+    if (folderExists(item->name))
+      return;
 
-        folders.push_back(item);
-        sortFolders(0, folders.size() - 1);
-    }
+    folders.push_back(item);
+    sortFolders(0, folders.size() - 1);
+  }
 
-    bool folderExists(string newName) {
-        for (Folder *x : folders)
-            if (x->name == newName)
-                return true;
-        return false;
-    }
+  bool folderExists(string newName) {
+    for (Folder *x : folders)
+      if (x->name == newName)
+        return true;
+    return false;
+  }
 
-    int foldersSize() {
-        return folders.size();
-    }
+  int foldersSize() { return folders.size(); }
 
-    Folder *getChildFolder(size_t index) {
-        return folders[index];
-    }
+  Folder *getChildFolder(size_t index) { return folders[index]; }
 
-    string getChildFolderName(size_t index) {
-        return folders[index]->name;
-    }
+  string getChildFolderName(size_t index) { return folders[index]->name; }
 
-    void renameChildFolder(size_t index, string newName) {
-        if (folderExists(newName))
-            return;
+  void renameChildFolder(size_t index, string newName) {
+    if (folderExists(newName))
+      return;
 
-        folders[index]->name = newName;
-        sortFolders(0, folders.size() - 1);
-    }
+    folders[index]->name = newName;
+    sortFolders(0, folders.size() - 1);
+  }
 
-    void deleteChildFolder(int index) {
-        delete folders[index];
-        folders.erase(folders.begin() + index);
-    }
+  void deleteChildFolder(int index) {
+    delete folders[index];
+    folders.erase(folders.begin() + index);
+  }
 
-    // Méthodes pour les notes enfants
+  // Méthodes pour les notes enfants
 
-    void add(Note *item) {
-        if (noteExists(item->getName()))
-            return;
-        notes.push_back(item);
-        sortNotes(0, notes.size() - 1);
-    }
+  void add(Note *item) {
+    if (noteExists(item->getName()))
+      return;
+    notes.push_back(item);
+    sortNotes(0, notes.size() - 1);
+  }
 
-    bool noteExists(string newName) {
-        for (Note *x : notes)
-            if (x->getName() == newName)
-                return true;
-        return false;
-    }
+  bool noteExists(string newName) {
+    for (Note *x : notes)
+      if (x->getName() == newName)
+        return true;
+    return false;
+  }
 
-    int notesSize() {
-        return notes.size();
-    }
+  int notesSize() { return notes.size(); }
 
-    string getChildNoteName(size_t index) {
-        return notes[index]->getName();
-    }
+  string getChildNoteName(size_t index) { return notes[index]->getName(); }
 
-    void renameChildNote(size_t index, string newName) {
-        if (noteExists(newName))
-            return;
-        notes[index]->rename(newName);
-        sortNotes(0, notes.size() - 1);
-    }
+  void renameChildNote(size_t index, string newName) {
+    if (noteExists(newName))
+      return;
+    notes[index]->rename(newName);
+    sortNotes(0, notes.size() - 1);
+  }
 
-    string getChildNoteContent(size_t index) {
-        return notes[index]->getContent();
-    }
+  string getChildNoteContent(size_t index) {
+    return notes[index]->getContent();
+  }
 
-    void editChildNote(size_t index, string content) {
-        notes[index]->edit(content);
-    }
+  void editChildNote(size_t index, string content) {
+    notes[index]->edit(content);
+  }
 
-    void deleteChildNote(int index) {
-        delete notes[index];
-        notes.erase(notes.begin() + index);
-    }
+  void deleteChildNote(int index) {
+    delete notes[index];
+    notes.erase(notes.begin() + index);
+  }
 };
